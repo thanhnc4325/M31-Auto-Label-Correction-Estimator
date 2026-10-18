@@ -1,0 +1,4 @@
+streamlit>=1.50
+pandas>=2.2
+numpy>=1.26
+pillow>=10  # đã đi kèm streamlit; dùng trực tiếp trong scripts/prepare_real_data.py

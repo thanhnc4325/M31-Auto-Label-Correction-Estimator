@@ -1,0 +1,11 @@
+task,repeat,fold,n_test,n_pos_test,n_pos_train
+detection,0,0,21,3,10
+detection,0,1,21,3,10
+detection,0,2,20,3,10
+detection,0,3,19,2,11
+detection,0,4,19,2,11
+segmentation,0,0,21,3,10
+segmentation,0,1,21,3,10
+segmentation,0,2,20,3,10
+segmentation,0,3,19,2,11
+segmentation,0,4,19,2,11

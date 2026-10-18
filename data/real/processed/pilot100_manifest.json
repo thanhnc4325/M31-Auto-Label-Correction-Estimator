@@ -1,0 +1,18 @@
+{
+  "description": "PILOT THẬT: 100 ảnh BDD100K, lớp car, YOLOv8n + SAM-B (box prompt từ YOLO).",
+  "source_zip": "end_corrected.zip",
+  "source_sha256": "db90d0549197194e87aefe0d33251426d768b720be525a32010193ce133d29bb",
+  "created_at": "2026-10-18T00:11:23",
+  "low_confidence_threshold": 0.5,
+  "small_box_area_px": 1024,
+  "n_images": 100,
+  "n_prelabel_rows": 200,
+  "n_log_rows": 200,
+  "num_predictions_mismatch_vs_log": 0,
+  "notes": [
+    "SAM không có confidence riêng: cột confidence của SAM là confidence của box YOLO dùng làm prompt.",
+    "File pre-label không chứa cột nào từ correction log hay ground truth.",
+    "Correction log chỉ dùng để đánh giá/hiệu chỉnh, không làm đầu vào dự đoán.",
+    "Ground truth (image_groundtruth_pairs_100.csv) không được đọc."
+  ]
+}

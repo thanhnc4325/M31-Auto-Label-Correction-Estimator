@@ -1,0 +1,170 @@
+{
+  "settings": {
+    "k": 5,
+    "repeats": 50,
+    "stratified_on": "correction_time_sec > 0",
+    "ridge_alpha": 10.0,
+    "logistic_l2": 1.0,
+    "perms": 200,
+    "perm_repeats": 5
+  },
+  "n_rows_per_task": 100,
+  "n_corrected_per_task": {
+    "detection": 13,
+    "segmentation": 13
+  },
+  "fold_positive_counts": [
+    {
+      "task": "detection",
+      "pos_test_min": 2,
+      "pos_test_max": 3,
+      "pos_train_min": 10,
+      "pos_train_max": 11
+    },
+    {
+      "task": "segmentation",
+      "pos_test_min": 2,
+      "pos_test_max": 3,
+      "pos_train_min": 10,
+      "pos_train_max": 11
+    }
+  ],
+  "feature_sets": {
+    "detection": {
+      "A": [
+        "n_boxes",
+        "has_predictions",
+        "conf_mean",
+        "conf_min",
+        "conf_max",
+        "conf_std",
+        "conf_n_lt030",
+        "conf_n_030_050",
+        "conf_n_050_070",
+        "conf_n_ge070",
+        "frac_conf_lt050",
+        "box_w_mean",
+        "box_h_mean",
+        "box_area_ratio_mean",
+        "box_area_ratio_min",
+        "box_area_ratio_max",
+        "box_area_ratio_sum",
+        "frac_small_boxes",
+        "max_pair_iou",
+        "n_overlap_pairs"
+      ],
+      "AB": [
+        "n_boxes",
+        "has_predictions",
+        "conf_mean",
+        "conf_min",
+        "conf_max",
+        "conf_std",
+        "conf_n_lt030",
+        "conf_n_030_050",
+        "conf_n_050_070",
+        "conf_n_ge070",
+        "frac_conf_lt050",
+        "box_w_mean",
+        "box_h_mean",
+        "box_area_ratio_mean",
+        "box_area_ratio_min",
+        "box_area_ratio_max",
+        "box_area_ratio_sum",
+        "frac_small_boxes",
+        "max_pair_iou",
+        "n_overlap_pairs",
+        "n_boxes_touch_bottom"
+      ],
+      "n_boxes": [
+        "n_boxes"
+      ]
+    },
+    "segmentation": {
+      "A": [
+        "n_boxes",
+        "has_predictions",
+        "conf_mean",
+        "conf_min",
+        "conf_max",
+        "conf_std",
+        "conf_n_lt030",
+        "conf_n_030_050",
+        "conf_n_050_070",
+        "conf_n_ge070",
+        "frac_conf_lt050",
+        "box_w_mean",
+        "box_h_mean",
+        "box_area_ratio_mean",
+        "box_area_ratio_min",
+        "box_area_ratio_max",
+        "box_area_ratio_sum",
+        "frac_small_boxes",
+        "max_pair_iou",
+        "n_overlap_pairs",
+        "n_masks",
+        "mask_area_ratio_mean",
+        "mask_union_coverage",
+        "mask_fill_in_box_mean",
+        "mask_fill_in_box_min"
+      ],
+      "AB": [
+        "n_boxes",
+        "has_predictions",
+        "conf_mean",
+        "conf_min",
+        "conf_max",
+        "conf_std",
+        "conf_n_lt030",
+        "conf_n_030_050",
+        "conf_n_050_070",
+        "conf_n_ge070",
+        "frac_conf_lt050",
+        "box_w_mean",
+        "box_h_mean",
+        "box_area_ratio_mean",
+        "box_area_ratio_min",
+        "box_area_ratio_max",
+        "box_area_ratio_sum",
+        "frac_small_boxes",
+        "max_pair_iou",
+        "n_overlap_pairs",
+        "n_masks",
+        "mask_area_ratio_mean",
+        "mask_union_coverage",
+        "mask_fill_in_box_mean",
+        "mask_fill_in_box_min",
+        "n_boxes_touch_bottom",
+        "mask_outside_box_frac_mean",
+        "mask_overlap_frac"
+      ],
+      "n_boxes": [
+        "n_boxes"
+      ]
+    }
+  },
+  "criteria": {
+    "min_pct_repeats_beat_zero": 0.8,
+    "min_auc": 0.7,
+    "max_perm_p": 0.05,
+    "applies_to": "nhóm A"
+  },
+  "decision": {
+    "detection": {
+      "criterion1_beats_zero": {
+        "ridge_A": false,
+        "hurdle_A": false
+      },
+      "criterion2_ranking": false,
+      "integrate": false
+    },
+    "segmentation": {
+      "criterion1_beats_zero": {
+        "ridge_A": false,
+        "hurdle_A": false
+      },
+      "criterion2_ranking": false,
+      "integrate": false
+    }
+  }
+}

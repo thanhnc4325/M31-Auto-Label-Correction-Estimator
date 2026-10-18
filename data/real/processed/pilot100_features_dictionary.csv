@@ -1,0 +1,30 @@
+feature,group,task,source,formula,missing_detection,missing_segmentation
+n_boxes,A,cả hai,yolo_predictions_100.csv,Số box car của YOLO (với segmentation = số box prompt = số mask),0,0
+has_predictions,A,cả hai,yolo_predictions_100.csv,1 nếu n_boxes > 0,0,0
+conf_mean,A,cả hai,yolo_predictions_100.csv,Trung bình confidence; trống nếu không có box,8,8
+conf_min,A,cả hai,yolo_predictions_100.csv,Confidence nhỏ nhất,8,8
+conf_max,A,cả hai,yolo_predictions_100.csv,Confidence lớn nhất,8,8
+conf_std,A,cả hai,yolo_predictions_100.csv,Độ lệch chuẩn confidence (ddof=0),8,8
+conf_n_lt030,A,cả hai,yolo_predictions_100.csv,Số box confidence < 0.3,0,0
+conf_n_030_050,A,cả hai,yolo_predictions_100.csv,Số box 0.3 ≤ confidence < 0.5,0,0
+conf_n_050_070,A,cả hai,yolo_predictions_100.csv,Số box 0.5 ≤ confidence < 0.7,0,0
+conf_n_ge070,A,cả hai,yolo_predictions_100.csv,Số box confidence ≥ 0.7,0,0
+frac_conf_lt050,A,cả hai,yolo_predictions_100.csv,Tỉ lệ box confidence < 0.5,8,8
+box_w_mean,A,cả hai,yolo_predictions_100.csv,Chiều rộng box TB (px) = mean(x2 − x1),8,8
+box_h_mean,A,cả hai,yolo_predictions_100.csv,Chiều cao box TB (px) = mean(y2 − y1),8,8
+box_area_ratio_mean,A,cả hai,yolo_predictions_100.csv; kích thước yolo_overlays/*.png,mean((x2−x1)(y2−y1) / (W·H)),8,8
+box_area_ratio_min,A,cả hai,yolo_predictions_100.csv; kích thước yolo_overlays/*.png,min diện tích box / diện tích ảnh,8,8
+box_area_ratio_max,A,cả hai,yolo_predictions_100.csv; kích thước yolo_overlays/*.png,max diện tích box / diện tích ảnh,8,8
+box_area_ratio_sum,A,cả hai,yolo_predictions_100.csv; kích thước yolo_overlays/*.png,tổng diện tích box / diện tích ảnh (có thể > 1 nếu chồng),8,8
+frac_small_boxes,A,cả hai,yolo_predictions_100.csv,Tỉ lệ box có diện tích < 32×32 px,8,8
+max_pair_iou,A,cả hai,yolo_predictions_100.csv,IoU lớn nhất giữa hai box bất kỳ trong ảnh (0 nếu < 2 box),0,0
+n_overlap_pairs,A,cả hai,yolo_predictions_100.csv,Số cặp box có IoU > 0.3,0,0
+n_masks,A,segmentation,sam_predictions_100.csv + sam_masks/*.png,Số dòng SAM (mask) của ảnh,100,0
+frac_empty_masks,A,segmentation,sam_predictions_100.csv + sam_masks/*.png,Tỉ lệ mask có 0 pixel hoặc thiếu file,100,8
+mask_area_ratio_mean,A,segmentation,sam_predictions_100.csv + sam_masks/*.png,mean(pixel mask / (W·H)),100,8
+mask_union_coverage,A,segmentation,sam_predictions_100.csv + sam_masks/*.png,pixel thuộc ít nhất 1 mask / (W·H),100,8
+mask_fill_in_box_mean,A,segmentation,sam_predictions_100.csv + sam_masks/*.png,mean(pixel mask nằm trong box prompt / diện tích box),100,8
+mask_fill_in_box_min,A,segmentation,sam_predictions_100.csv + sam_masks/*.png,min(pixel mask trong box / diện tích box),100,8
+n_boxes_touch_bottom,B,cả hai,yolo_predictions_100.csv; kích thước yolo_overlays/*.png,Số box có y2 ≥ H − 2 (chạm đáy ảnh),0,0
+mask_outside_box_frac_mean,B,segmentation,sam_predictions_100.csv + sam_masks/*.png,mean(pixel mask ngoài box prompt / pixel mask),100,8
+mask_overlap_frac,B,segmentation,sam_predictions_100.csv + sam_masks/*.png,pixel thuộc ≥ 2 mask / pixel thuộc ≥ 1 mask,100,8

@@ -1,0 +1,11 @@
+task,model,fitted,auc_mean,auc_std,auc_p05,auc_p95,perm_p
+detection,m31_quality_score (thấp → cần sửa),False,0.5217,0.0,,,
+detection,n_boxes (nhiều → cần sửa),False,0.6242,0.0,,,
+detection,conf_min (thấp → cần sửa),False,0.5208,0.0,,,
+detection,logistic_A,True,0.5607,0.0524,0.4703,0.6452,0.4129
+detection,logistic_AB,True,0.539,0.0481,0.4605,0.6176,0.4428
+segmentation,m31_quality_score (thấp → cần sửa),False,0.5217,0.0,,,
+segmentation,n_boxes (nhiều → cần sửa),False,0.6242,0.0,,,
+segmentation,conf_min (thấp → cần sửa),False,0.5208,0.0,,,
+segmentation,logistic_A,True,0.5584,0.0497,0.4825,0.6393,0.3184
+segmentation,logistic_AB,True,0.4997,0.0453,0.4353,0.5757,0.4179

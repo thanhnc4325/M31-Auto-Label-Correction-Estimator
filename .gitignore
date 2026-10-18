@@ -1,0 +1,32 @@
+# Môi trường Python
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets / token (không bao giờ commit)
+.streamlit/secrets.toml
+.env
+.env.*
+*.pem
+*.key
+
+# File tạm của hệ điều hành / Office
+Thumbs.db
+.DS_Store
+~$*
+
+# ---- Dữ liệu local, KHÔNG commit ----
+# Bản sao ZIP pilot (~170 MB, chứa overlay/mask sinh từ ảnh BDD100K)
+data/real/local/
+# Mọi file nén, ảnh và mask trong data/ (BDD100K không được phân phối lại)
+data/**/*.zip
+data/**/*.jpg
+data/**/*.jpeg
+data/**/*.png
+
+# CSV pilot đã xử lý (đặc trưng pre-label, kết quả phân tích tổng hợp) ĐƯỢC commit để app chạy ngay.
+# Đã rà soát 2026-10-18: không có đường dẫn máy, email hay tên người; image_id là mã công khai của BDD100K.
+#
+# Correction log thật (thời gian sửa + ghi chú của người sửa) CHƯA được nhóm xác nhận đồng ý công khai
+# -> không commit. App vẫn chạy được không có file này. Khi nhóm đồng ý, xoá dòng dưới.
+data/real/processed/pilot100_correction_log.csv
