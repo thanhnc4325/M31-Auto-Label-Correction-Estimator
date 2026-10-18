@@ -570,5 +570,31 @@ class TestModelBenchmarkLoader(unittest.TestCase):
                          ["yolov8n", "yolov8x", "yolo11n", "yolo11m"])
 
 
+class TestPilotImages(unittest.TestCase):
+    """data/real/pilot_images/: đúng 100 ảnh pilot × 2 task, kèm giấy phép, không file thừa, dung lượng hợp lý."""
+
+    def test_previews_match_pilot_ids(self):
+        from pathlib import Path
+
+        from PIL import Image
+        root = Path(__file__).resolve().parent.parent
+        ids = set(pd.read_csv(root / "data/real/processed/pilot100_prelabels.csv")["image_id"])
+        self.assertEqual(len(ids), 100)
+        base = root / "data/real/pilot_images"
+        self.assertTrue((base / "LICENSE_BDD100K.md").is_file())
+        total = 0
+        for task in ("detection", "segmentation"):
+            files = sorted((base / task).glob("*"))
+            self.assertEqual({f.stem for f in files}, ids, task)               # đúng 100 ID, không thừa
+            self.assertTrue(all(f.suffix == ".jpg" for f in files))
+            for f in files:
+                total += f.stat().st_size
+                self.assertLess(f.stat().st_size, 100 * 1024 * 1024)
+            with Image.open(files[0]) as im:
+                self.assertEqual(im.size, (1280, 720))
+        self.assertEqual({p.name for p in base.iterdir()}, {"detection", "segmentation", "LICENSE_BDD100K.md"})
+        self.assertLess(total, 200 * 1000 * 1000)
+
+
 if __name__ == "__main__":
     unittest.main()

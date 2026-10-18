@@ -41,6 +41,11 @@ PILOT_LOG = PILOT_DIR / "pilot100_correction_log.csv"
 PILOT_MANIFEST = PILOT_DIR / "pilot100_manifest.json"
 PILOT_ZIP = ROOT / "data" / "real" / "local" / "end_corrected.zip"
 RIDGE_ARTIFACT = ROOT / "models" / "ridge_pilot100.json"
+PILOT_IMAGES = ROOT / "data" / "real" / "pilot_images"
+BDD100K_NOTICE = (
+    "Ảnh BDD100K © 2018 The Regents of the University of California. Dùng cho mục đích giáo dục, nghiên cứu, "
+    "phi lợi nhuận theo giấy phép BDD100K; xem `data/real/pilot_images/LICENSE_BDD100K.md`."
+)
 BENCHMARK_RUNS = ROOT / "data" / "real" / "model_comparison" / "runs"
 OVERLAY_DIR_IN_ZIP = {"detection": "yolo_overlays", "segmentation": "sam_overlays"}
 IMAGE_EXTS = (".jpg", ".jpeg", ".png")
@@ -86,6 +91,12 @@ def find_image(folder: str, image_id: str) -> Path | None:
         if p.is_file():
             return p
     return None
+
+
+def pilot_preview(image_id: str, task: str) -> Path | None:
+    """Ảnh preview pre-label trong repo (data/real/pilot_images/<task>/<image_id>.jpg), dùng được trên Streamlit Cloud."""
+    p = PILOT_IMAGES / task / f"{image_id}.jpg"
+    return p if p.is_file() else None
 
 
 def overlay_from_zip(image_id: str, task: str) -> bytes | None:
@@ -329,8 +340,10 @@ thresholds = {"high_below": float(high_below), "medium_below": float(medium_belo
 st.sidebar.header("Ảnh")
 if kind == "pilot":
     st.sidebar.caption(
+        "Ảnh pre-label YOLO/SAM: preview trong repo (`data/real/pilot_images/`)."
+        if PILOT_IMAGES.is_dir() else
         "Overlay YOLO/SAM được đọc trực tiếp từ `data/real/local/end_corrected.zip` (nếu có)."
-        if PILOT_ZIP.is_file() else "Không thấy ZIP local — sẽ không hiển thị overlay."
+        if PILOT_ZIP.is_file() else "Không có ảnh pilot (thiếu `data/real/pilot_images/` và ZIP local)."
     )
 image_dir = st.sidebar.text_input(
     "Thư mục ảnh (tùy chọn)", placeholder=r"vd. ...\bdd100k\images\100k\train",
@@ -525,9 +538,14 @@ with tab_detail:
     left, right = st.columns([3, 2])
     with left:
         img = find_image(image_dir, row["image_id"])
-        overlay = overlay_from_zip(row["image_id"], row["task"]) if kind == "pilot" else None
-        if overlay is not None:
+        preview = pilot_preview(row["image_id"], row["task"]) if kind == "pilot" else None
+        overlay = overlay_from_zip(row["image_id"], row["task"]) if kind == "pilot" and preview is None else None
+        if preview is not None:
+            st.image(str(preview), caption=f"Ảnh BDD100K + pre-label {row['model']} · {row['image_id']}")
+            st.caption(BDD100K_NOTICE)
+        elif overlay is not None:
             st.image(overlay, caption=f"Overlay pre-label {row['model']} (từ ZIP local) · {row['image_id']}")
+            st.caption(BDD100K_NOTICE)
         elif img is not None:
             st.image(str(img), caption=row["image_id"])
         else:

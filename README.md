@@ -51,9 +51,10 @@ pip install -r requirements.txt   # streamlit, pandas, numpy, pillow
 |---|---|
 | `data/real/processed/`: pre-label, đặc trưng, kết quả phân tích và `pilot100_correction_log.csv` (thời gian sửa/ghi chú). Nhóm đã xác nhận đồng ý công khai log ngày 18/10/2026. | `data/real/local/end_corrected.zip`: gói gốc khoảng 170 MB, gồm overlay và mask sinh từ ảnh BDD100K |
 | `data/sample/`: dữ liệu MINH HỌA | — |
-| | Mọi `*.zip`, `*.png`, `*.jpg` trong `data/`; `.venv/`; secrets (`.streamlit/secrets.toml`, `.env`) |
+| `data/real/pilot_images/`: 200 ảnh preview (JPEG) của đúng 100 ảnh pilot BDD100K kèm box YOLOv8n / mask SAM-B, dùng cho tab ③. Giấy phép: [`LICENSE_BDD100K.md`](data/real/pilot_images/LICENSE_BDD100K.md) | — |
+| | Mọi `*.zip`, `*.png`, `*.jpg` khác trong `data/` (toàn bộ BDD100K, ZIP gốc, mask); `.venv/`; secrets (`.streamlit/secrets.toml`, `.env`) |
 
-**Sau khi clone, app chạy được ngay** với nguồn "Pilot thật" (đọc CSV processed), gồm correction log để đối chiếu ở tab ④. App không có ảnh overlay (cần ZIP); giao diện báo rõ giới hạn này.
+**Sau khi clone, app chạy được ngay** với nguồn "Pilot thật" (đọc CSV processed), gồm correction log để đối chiếu ở tab ④. Tab ③ hiển thị ảnh pre-label từ `data/real/pilot_images/` (không cần ZIP); giao diện báo rõ giới hạn này.
 Muốn xem overlay hoặc tạo lại dữ liệu processed (máy có gói pilot):
 
 1. Sao chép gói vào `data\real\local\end_corrected.zip`.
@@ -131,7 +132,7 @@ python -m streamlit run app.py --server.address 0.0.0.0 --server.port 8501 --ser
 Luồng demo trong ứng dụng:
 1. **① Chọn dữ liệu**: Pilot thật (local) / Tải lên / Minh họa. Mỗi nguồn có nhãn riêng ở đầu trang.
 2. **② Danh sách & ưu tiên review**: bảng toàn bộ ảnh, lọc theo tác vụ/model/ưu tiên, tải CSV kết quả.
-3. **③ Chi tiết ảnh & pre-label**: overlay YOLO/SAM (đọc trực tiếp từ ZIP local), đặc trưng đầu vào, ước lượng và log sửa thật.
+3. **③ Chi tiết ảnh & pre-label**: ảnh BDD100K kèm box YOLOv8n / mask SAM-B (preview trong `data/real/pilot_images/`; dùng ZIP local nếu thiếu preview), đặc trưng đầu vào, ước lượng và log sửa thật.
 4. **④ So sánh với thời gian sửa thật**: MAE so với mốc hằng số, tương quan, bảng ưu tiên × ảnh thực sự cần sửa.
 5. **⑤ Giới hạn & kiểm tra rò rỉ**: danh sách cột được dùng làm đầu vào và các cột bị cấm.
 6. **⑥ So sánh model YOLO/SAM**: kết quả benchmark đã chạy (đọc từ `data/real/model_comparison/runs/`). Detection và segmentation tách riêng; P/R trên 14 ảnh / 126 box có nhãn; SAM dùng chung box prompt YOLOv8n, IoU chính trên 92 ảnh. Kết quả chỉ mang tính khám phá; mặc định vẫn là YOLOv8n + SAM-B. Thiếu file kết quả thì app báo rõ, không hiển thị số.
