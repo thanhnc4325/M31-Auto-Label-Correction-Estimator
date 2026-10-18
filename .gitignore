@@ -27,6 +27,4 @@ data/**/*.png
 # CSV pilot đã xử lý (đặc trưng pre-label, kết quả phân tích tổng hợp) ĐƯỢC commit để app chạy ngay.
 # Đã rà soát 2026-10-18: không có đường dẫn máy, email hay tên người; image_id là mã công khai của BDD100K.
 #
-# Correction log thật (thời gian sửa + ghi chú của người sửa) CHƯA được nhóm xác nhận đồng ý công khai
-# -> không commit. App vẫn chạy được không có file này. Khi nhóm đồng ý, xoá dòng dưới.
-data/real/processed/pilot100_correction_log.csv
+# Correction log thật: nhóm đã xác nhận đồng ý công khai ngày 2026-10-18; được commit để app đối chiếu.

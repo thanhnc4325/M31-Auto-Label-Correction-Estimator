@@ -46,12 +46,11 @@ pip install -r requirements.txt   # streamlit, pandas, numpy, pillow
 
 | Có trong repository | Chỉ ở máy local (bị `.gitignore`) |
 |---|---|
-| `data/real/processed/pilot100_prelabels.csv`, `pilot100_features*.csv`, `pilot100_cv_*.csv`, `pilot100_univariate_auc.csv`, `*.json`: đặc trưng pre-label và kết quả phân tích tổng hợp (đã rà soát: không có đường dẫn máy, email, tên người hay cột log sửa) | `data/real/processed/pilot100_correction_log.csv`: thời gian sửa và ghi chú của người sửa, **chưa được nhóm xác nhận đồng ý công khai** |
-| `data/sample/`: dữ liệu MINH HỌA | `data/real/local/end_corrected.zip`: gói gốc khoảng 170 MB, gồm overlay và mask sinh từ ảnh BDD100K |
+| `data/real/processed/`: pre-label, đặc trưng, kết quả phân tích và `pilot100_correction_log.csv` (thời gian sửa/ghi chú). Nhóm đã xác nhận đồng ý công khai log ngày 18/10/2026. | `data/real/local/end_corrected.zip`: gói gốc khoảng 170 MB, gồm overlay và mask sinh từ ảnh BDD100K |
+| `data/sample/`: dữ liệu MINH HỌA | — |
 | | Mọi `*.zip`, `*.png`, `*.jpg` trong `data/`; `.venv/`; secrets (`.streamlit/secrets.toml`, `.env`) |
 
-**Sau khi clone, app chạy được ngay** với nguồn "Pilot thật" (đọc CSV processed): tab ②, ③ và ⑤ đầy đủ;
-không có ảnh overlay (cần ZIP), và tab ④ không có đối chiếu (cần correction log). App hiện thông báo rõ cho cả hai trường hợp.
+**Sau khi clone, app chạy được ngay** với nguồn "Pilot thật" (đọc CSV processed), gồm correction log để đối chiếu ở tab ④. App không có ảnh overlay (cần ZIP); giao diện báo rõ giới hạn này.
 Muốn xem overlay hoặc tạo lại dữ liệu processed (máy có gói pilot):
 
 1. Sao chép gói vào `data\real\local\end_corrected.zip`.
@@ -123,9 +122,7 @@ python -m streamlit run app.py --server.address 0.0.0.0 --server.port 8501 --ser
 
 - **App không có đăng nhập.** Ai có URL đều xem được dữ liệu pilot và tải CSV lên được. Nên giới hạn IP truy cập,
   hoặc đặt sau reverse proxy có xác thực. Nếu dùng nginx, cần bật proxy WebSocket cho `/_stcore/stream`.
-- **Dữ liệu trên server:** chỉ có những gì trong repository. Correction log và ZIP **không** đi theo Git.
-  Chỉ chép `pilot100_correction_log.csv` lên server (vd. bằng `scp` vào `data/real/processed/`) **sau khi nhóm đồng ý công khai**.
-  Không chép ZIP, ảnh hay mask BDD100K lên server công khai.
+- **Dữ liệu trên server:** correction log pilot đã được nhóm đồng ý công khai và nằm trong repository. ZIP, ảnh và mask BDD100K không được đưa lên server công khai.
 - Không đặt token hay mật khẩu trong code. Nếu sau này cần, dùng `.streamlit/secrets.toml` hoặc `.env` (đều đã bị `.gitignore`).
 
 Luồng demo trong ứng dụng:

@@ -6,7 +6,7 @@
 |---|---|---|
 | `local/end_corrected.zip` | Bản sao gói pilot (YOLO/SAM, mask, overlay, correction log). SHA-256 ghi trong manifest. | **Không** (.gitignore) |
 | `processed/pilot100_prelabels.csv` | 200 dòng (100 ảnh × 2 tác vụ), chỉ đặc trưng pre-label | Có (xem .gitignore để tắt) |
-| `processed/pilot100_correction_log.csv` | 200 dòng log sửa, chỉ để đối chiếu | Có (xem .gitignore để tắt) |
+| `processed/pilot100_correction_log.csv` | 200 dòng log sửa, chỉ để đối chiếu; nhóm đã đồng ý công khai ngày 18/10/2026 | Có |
 | `processed/pilot100_manifest.json` | Nguồn, hash, ngưỡng, số dòng | Có |
 | `processed/pilot100_features.csv` + `_features_dictionary.csv` | 29 đặc trưng mở rộng (chỉ trước khi sửa) + công thức/nguồn/số thiếu | Có |
 | `processed/pilot100_cv_*.csv`, `pilot100_univariate_auc.csv`, `pilot100_analysis_summary.json` | Kết quả phân tích (docs/07) | Có |

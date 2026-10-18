@@ -27,10 +27,7 @@ Trạng thái kiểm kê ngày 2026-10-18.
 - [ ] Tên thành viên trên slide 1 và trong README, nếu đề bài yêu cầu (hiện chỉ ghi "Nhóm M31").
 - [ ] Nhật ký các thành viên khác (YOLO, SAM, người sửa nhãn), kèm bằng chứng.
 - [ ] LICENSE: chưa chọn. Lưu ý BDD100K có điều khoản riêng; repo không chứa ảnh hay nhãn BDD100K.
-- [ ] Đồng ý của nhóm về việc công khai `pilot100_correction_log.csv` (có ghi chú của người sửa). **Mặc định hiện tại:
-      không commit** (đã có trong `.gitignore`); app vẫn chạy chế độ "Pilot thật" nhưng tab ④ không có đối chiếu.
-      Khi nhóm đồng ý, xoá dòng `data/real/processed/pilot100_correction_log.csv` trong `.gitignore`.
-      Lưu ý: `docs/05` (ví dụ ảnh `00054602-3bf57337`, 8,5 s), `docs/01` và `docs/07` vẫn trích một ít nội dung từ log.
+- [x] Nhóm đồng ý công khai `pilot100_correction_log.csv` (có ghi chú người sửa), xác nhận ngày 18/10/2026; file được commit cùng dữ liệu pilot. `docs/05`, `docs/01` và `docs/07` có trích một số dòng/tổng hợp từ log.
 - [ ] Triển khai server (Hùng): xem mục "Triển khai lên server" trong README.
 - [ ] Ảnh chụp màn hình app cho README (tùy chọn).
 
