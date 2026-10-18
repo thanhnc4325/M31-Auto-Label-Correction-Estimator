@@ -298,5 +298,100 @@ class TestFeatureScripts(unittest.TestCase):
         self.assertEqual(af.auc(np.ones(4), pos), 0.5)
 
 
+class TestTrainedRidge(unittest.TestCase):
+    """m31/ridge_model.py: fold theo image_id, không lọt cột log, artifact đọc lại được."""
+
+    def _merged(self, n=40, n_pos=8):
+        import m31.ridge_model as rm
+        rng = np.random.default_rng(1)
+        ids = [f"img{i:03d}" for i in range(n)]
+        rows_pre, rows_log = [], []
+        for task, model in [("detection", "yolo"), ("segmentation", "sam")]:
+            for i, iid in enumerate(ids):
+                k = int(rng.integers(0, 10))
+                rows_pre.append(dict(image_id=iid, task=task, model=model, mean_confidence=float(rng.uniform(0.3, 0.9)),
+                                     num_predictions=k, low_confidence_count=int(rng.integers(0, k + 1)),
+                                     image_width=1280, image_height=720))
+                t = 8.0 + k if i < n_pos else 0.0
+                rows_log.append(dict(image_id=iid, task=task, model=model, correction_time_sec=t, edits_added=0,
+                                     edits_removed=int(t > 0), edits_changed=0, status="x", notes="ghi chú"))
+        pre = validate_prelabels(pd.DataFrame(rows_pre)).df
+        log = validate_correction_log(pd.DataFrame(rows_log)).df
+        return rm, rm.merge_for_training(pre, log)
+
+    def test_merge_drops_post_correction_columns(self):
+        _, m = self._merged()
+        self.assertFalse({"edits_added", "edits_removed", "edits_changed", "status", "notes"} & set(m.columns))
+        self.assertIn("correction_time_sec", m.columns)
+
+    def test_group_folds_keep_image_together_and_stratify(self):
+        rm, m = self._merged()
+        folds = rm.group_folds(m, 5, seed=42)
+        all_ids = np.concatenate(folds)
+        self.assertEqual(len(all_ids), len(set(all_ids)))            # mỗi ảnh đúng 1 fold
+        self.assertEqual(set(all_ids), set(m["image_id"]))
+        pos = set(m.loc[m.correction_time_sec > 0, "image_id"])
+        self.assertEqual(sorted(len(pos & set(f)) for f in folds), [1, 1, 2, 2, 2])
+        # Seed cố định -> tái lập được
+        self.assertEqual([f.tolist() for f in folds], [f.tolist() for f in rm.group_folds(m, 5, seed=42)])
+
+    def test_cv_reports_baselines_and_counts(self):
+        rm, m = self._merged()
+        summary, folds = rm.cross_validate(m, k=5, seed=42, repeats=2)
+        for task in ["detection", "segmentation"]:
+            self.assertEqual(summary[task]["n_samples"], 40)
+            self.assertEqual(summary[task]["n_corrected"], 8)
+            self.assertEqual(set(summary[task]["mae"]), {"ridge", "zero", "train_median"})
+        self.assertEqual(int(folds.groupby("task")["n_corrected_test"].sum().iloc[0]), 8)
+
+    def test_artifact_round_trip_without_log_rows(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        rm, m = self._merged()
+        coefs = rm.fit_final(m)
+        summary, _ = rm.cross_validate(m, k=5, seed=42, repeats=1)
+        art = rm.build_artifact(m, coefs, summary, {"seed": 42}, [{"file": "x.csv"}])
+        text = json.dumps(art, ensure_ascii=False)
+        self.assertNotIn("img000", text)          # không có image_id / dòng log
+        self.assertNotIn("ghi chú", text)
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "m.json"
+            p.write_text(text, encoding="utf-8")
+            est = rm.load_trained_ridge(p)
+        pred = est.predict(m)
+        self.assertTrue((pred >= 0).all())
+        expected = np.clip(rm._design(m[m.task == "detection"]) @ coefs["detection"], 0, None)
+        np.testing.assert_allclose(pred[m.task == "detection"].to_numpy(), expected.round(1), atol=1e-4)
+
+
+class TestSimpleModels(unittest.TestCase):
+    """m31/simple_models.py: hurdle và LAD cho dữ liệu nhiều số 0."""
+
+    def _X(self, n):
+        rng = np.random.default_rng(0)
+        return np.column_stack([np.ones(n), rng.integers(0, 10, n), rng.integers(0, 5, n), rng.uniform(0, 1, n)])
+
+    def test_lad_predicts_median_on_mostly_zero_target(self):
+        from m31.simple_models import fit_predict_lad
+        X = self._X(100)
+        y = np.zeros(100); y[:13] = 9.0            # 87% số 0, không liên quan đặc trưng
+        self.assertLess(fit_predict_lad(X, y, X).max(), 0.01)
+
+    def test_lad_recovers_linear_relation(self):
+        from m31.simple_models import fit_predict_lad
+        X = self._X(60)
+        y = 1.0 + 2.0 * X[:, 1]
+        np.testing.assert_allclose(fit_predict_lad(X, y, X), y, atol=1e-3)
+
+    def test_hurdle_uses_positive_median_when_separable(self):
+        from m31.simple_models import fit_predict_hurdle
+        X = self._X(80)
+        y = np.where(X[:, 1] >= 7, 10.0, 0.0)       # cần sửa <=> nhiều box
+        pred = fit_predict_hurdle(X, y, X)
+        self.assertTrue(set(np.unique(pred)) <= {0.0, 10.0})
+        self.assertGreater(((pred > 0) == (y > 0)).mean(), 0.9)
+
+
 if __name__ == "__main__":
     unittest.main()

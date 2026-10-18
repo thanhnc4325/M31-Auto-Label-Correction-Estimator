@@ -1,0 +1,11 @@
+task,fold,n_test,n_train,n_corrected_test,n_corrected_train
+detection,0,21,79,3,10
+detection,1,21,79,3,10
+detection,2,20,80,3,10
+detection,3,19,81,2,11
+detection,4,19,81,2,11
+segmentation,0,21,79,3,10
+segmentation,1,21,79,3,10
+segmentation,2,20,80,3,10
+segmentation,3,19,81,2,11
+segmentation,4,19,81,2,11

@@ -1,0 +1,11 @@
+task,model,n,n_corrected,mae_mean,mae_std_repeats,fold_mae_min,fold_mae_max,fold_mae_std,mae_on_corrected,mae_on_uncorrected,avg_predictions_ge_0_5s,pct_repeats_beat_zero,pct_repeats_tie_zero
+detection,zero,100,13,1.17,0.0,0.7632,1.825,0.2623,9.0,0.0,0.0,,
+detection,ridge,100,13,2.0067,0.0378,1.3224,2.7275,0.2812,7.7377,1.1503,80.25,0.0,0.0
+detection,hurdle,100,13,1.2247,0.062,0.7632,1.975,0.3179,8.9702,0.0674,0.8,0.0,0.5
+detection,lad,100,13,1.17,0.0,0.7632,1.825,0.2623,9.0,0.0,0.0,0.0,0.55
+detection,nested_selected,100,13,1.2126,0.0637,0.7632,1.975,0.3122,8.9702,0.0535,0.65,0.0,0.65
+segmentation,zero,100,13,1.685,0.0,0.8158,3.825,0.7663,12.9615,0.0,0.0,,
+segmentation,ridge,100,13,2.8846,0.1096,1.6997,4.8343,0.7542,11.07,1.6615,77.85,0.0,0.0
+segmentation,hurdle,100,13,1.747,0.0719,0.8158,3.825,0.8013,12.9288,0.0761,0.8,0.0,0.5
+segmentation,lad,100,13,1.685,0.0,0.8158,3.825,0.7663,12.9615,0.0,0.0,0.0,1.0
+segmentation,nested_selected,100,13,1.738,0.0735,0.8158,3.825,0.803,12.9288,0.0658,0.7,0.0,0.6

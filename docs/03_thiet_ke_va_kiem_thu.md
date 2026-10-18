@@ -36,7 +36,7 @@ Lưu ý: ghi chú của người sửa có nhắc đến ground truth (vd. "GT n
 
 ### Unit test (`tests/test_core.py`)
 
-Chạy: `.venv\Scripts\python.exe -m unittest discover tests`. Kết quả lần chạy gần nhất (2026-10-18): **20/20 pass**.
+Chạy: `.venv\Scripts\python.exe -m unittest discover tests`. Kết quả lần chạy gần nhất (2026-10-18): **27/27 pass**.
 
 | Nhóm | Test | Kiểm tra |
 |---|---|---|
@@ -65,6 +65,10 @@ Chạy: `.venv\Scripts\python.exe -m unittest discover tests`. Kết quả lần
 - Tab chi tiết với pilot: hiển thị overlay đọc từ ZIP.
 - Chạy `app.py` trong thư mục không có dữ liệu local: tự chuyển sang "Tải lên" và hiện hướng dẫn, không lỗi.
 - Chưa có kiểm thử giao diện tự động trong `tests/`; các bước trên được chạy thủ công.
+
+| Ridge đã huấn luyện | `test_merge_drops_post_correction_columns`, `test_group_folds_keep_image_together_and_stratify`, `test_cv_reports_baselines_and_counts`, `test_artifact_round_trip_without_log_rows` | Không lọt cột sau-sửa; mỗi image_id đúng 1 fold, seed tái lập; CV có mốc 0 giây và median; artifact không chứa image_id hay ghi chú, đọc lại cho dự đoán đúng |
+
+| Mô hình đơn giản | `test_lad_predicts_median_on_mostly_zero_target`, `test_lad_recovers_linear_relation`, `test_hurdle_uses_positive_median_when_separable` | LAD đúng là hồi quy trung vị; hurdle chỉ dự đoán 0 hoặc median ca có sửa |
 
 ### Phân tích đặc trưng mở rộng
 

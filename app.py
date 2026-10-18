@@ -21,6 +21,7 @@ from m31.calibration import (
     priority_vs_correction,
 )
 from m31.estimator import DEFAULT_THRESHOLDS, PRIORITY_ORDER, TASK_VI, estimate
+from m31.ridge_model import load_trained_ridge
 from m31.schema import (
     CORRECTION_COLUMNS,
     OPTIONAL_PRELABEL_COLUMNS,
@@ -38,6 +39,7 @@ PILOT_PRELABELS = PILOT_DIR / "pilot100_prelabels.csv"
 PILOT_LOG = PILOT_DIR / "pilot100_correction_log.csv"
 PILOT_MANIFEST = PILOT_DIR / "pilot100_manifest.json"
 PILOT_ZIP = ROOT / "data" / "real" / "local" / "end_corrected.zip"
+RIDGE_ARTIFACT = ROOT / "models" / "ridge_pilot100.json"
 OVERLAY_DIR_IN_ZIP = {"detection": "yolo_overlays", "segmentation": "sam_overlays"}
 IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 
@@ -207,9 +209,47 @@ if log_raw is not None:
         report = evaluate(prelabels, log_df)
 
 # ---------------------------------------------------------------- Mô hình thời gian
+MODEL_BASELINE = "Baseline (heuristic, không học)"
+MODEL_RIDGE = "Ridge đã huấn luyện — thử nghiệm"
+trained_ridge = None
+if RIDGE_ARTIFACT.is_file():
+    try:
+        trained_ridge = load_trained_ridge(RIDGE_ARTIFACT)
+    except (ValueError, KeyError, json.JSONDecodeError) as exc:
+        st.sidebar.error(f"Không đọc được `models/ridge_pilot100.json`: {exc}")
+st.sidebar.header("Mô hình thời gian sửa")
+model_choice = st.sidebar.radio(
+    "Chọn mô hình", [MODEL_BASELINE, MODEL_RIDGE] if trained_ridge else [MODEL_BASELINE],
+    help="Ridge được train trên pilot 100 ảnh (scripts/train_ridge.py). Điểm chất lượng và mức ưu tiên không đổi.",
+)
+if trained_ridge is None:
+    st.sidebar.caption("Chưa có `models/ridge_pilot100.json` — chạy `python scripts/train_ridge.py` để tạo.")
+
 time_estimator = BaselineTimeEstimator()
 use_calibrated = False
-if report is not None and report.estimator is not None:
+use_trained = model_choice == MODEL_RIDGE and trained_ridge is not None
+if use_trained:
+    time_estimator = trained_ridge
+    cv = {t: v["cv"] for t, v in trained_ridge.artifact["tasks"].items()}
+    lines = [
+        f"- **{t}**: MAE Ridge **{c['mae']['ridge']:.2f} s** · luôn đoán 0 giây **{c['mae']['zero']:.2f} s** · "
+        f"median train **{c['mae']['train_median']:.2f} s** (n = {c['n_samples']}, có sửa = {c['n_corrected']}; "
+        f"Ridge thắng mốc 0 giây ở {c['pct_repeats_ridge_beats_zero']:.0%} lần lặp)"
+        for t, c in cv.items()
+    ]
+    beats = all(c["mae"]["ridge"] < c["mae"]["zero"] for c in cv.values())
+    st.warning(
+        "**Ridge đã huấn luyện — MÔ HÌNH THỬ NGHIỆM** trên pilot 100 ảnh BDD100K (lớp car), mỗi task chỉ 13 ảnh có "
+        "thời gian sửa > 0. Kết quả cross-validation (fold theo image_id, "
+        f"{trained_ridge.artifact['cv_settings']['repeats']} lần lặp, seed {trained_ridge.artifact['cv_settings']['seed']}):\n"
+        + "\n".join(lines)
+        + ("\n\n**Ridge KHÔNG tốt hơn mốc luôn đoán 0 giây** trên pilot này. Không dùng mô hình để khẳng định cải thiện "
+           "độ chính xác hay tiết kiệm thời gian." if not beats else
+           "\n\nCV cho thấy Ridge có MAE thấp hơn mốc 0 giây trên pilot nhỏ này; chưa kiểm chứng trên dữ liệu mới.")
+    )
+    if kind != "pilot":
+        st.caption("Mô hình được train trên pilot thật; áp dụng lên dữ liệu khác chỉ để minh hoạ.")
+elif report is not None and report.estimator is not None:
     use_calibrated = st.sidebar.toggle(
         "Dùng mô hình đã hiệu chỉnh từ correction log", value=False,
         help=f"Chỉ khả dụng cho task có ≥{MIN_NONZERO_FOR_FIT} ảnh có thời gian sửa > 0.",
@@ -217,7 +257,9 @@ if report is not None and report.estimator is not None:
     if use_calibrated:
         time_estimator = report.estimator
 
-if use_calibrated:
+if use_trained:
+    pass
+elif use_calibrated:
     st.success(f"Thời gian sửa: **{time_estimator.name}** cho task {list(report.estimator.coefs)}.")
 else:
     st.warning(
@@ -256,7 +298,8 @@ with tab_list:
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Số dòng (ảnh × tác vụ)", len(view))
     m2.metric("Ưu tiên cao", int((view["priority"] == "cao").sum()))
-    m3.metric("Tổng thời gian sửa ước lượng (baseline)" if not use_calibrated else "Tổng thời gian sửa ước lượng",
+    m3.metric("Tổng thời gian sửa ước lượng (Ridge thử nghiệm)" if use_trained else
+              "Tổng thời gian sửa ước lượng (baseline)" if not use_calibrated else "Tổng thời gian sửa ước lượng",
               f"{view['estimated_correction_time_sec'].sum() / 60:.1f} phút")
     m4.metric("Điểm chất lượng TB (thử nghiệm)", f"{view['predicted_quality_score'].mean():.1f}" if len(view) else "–")
 
@@ -318,6 +361,27 @@ with tab_detail:
 
 # ---------------------------------------------------------------- So sánh với thời gian thật
 with tab_compare:
+    if use_trained:
+        st.subheader("Ridge đã huấn luyện — kết quả cross-validation (từ artifact)")
+        cv_rows = []
+        for t, v in trained_ridge.artifact["tasks"].items():
+            c = v["cv"]
+            cv_rows.append({
+                "task": t, "số mẫu": c["n_samples"], "ảnh có sửa": c["n_corrected"],
+                "MAE Ridge (CV)": c["mae"]["ridge"], "MAE luôn đoán 0 (CV)": c["mae"]["zero"],
+                "MAE median train (CV)": c["mae"]["train_median"],
+                "% lần lặp Ridge thắng 0 giây": f"{c['pct_repeats_ridge_beats_zero']:.0%}",
+            })
+        st.dataframe(pd.DataFrame(cv_rows), hide_index=True, width="stretch")
+        st.caption(
+            f"{trained_ridge.artifact['cv_settings']['method']}; seed {trained_ridge.artifact['cv_settings']['seed']}. "
+            f"Train ngày {trained_ridge.artifact['trained_at']}. Hệ số và cấu hình: `models/ridge_pilot100.json`."
+        )
+        if kind == "pilot":
+            st.warning(
+                "Bảng \"Từng ảnh\" bên dưới dùng Ridge đã fit trên **chính** pilot này, nên sai số ở đó là sai số trên "
+                "dữ liệu train, **không phải** kết quả kiểm chứng. Dùng bảng CV ở trên để đánh giá."
+            )
     if report is None:
         st.info("Chưa có correction log nên **chưa đối chiếu và chưa đánh giá** được ước lượng.")
     else:

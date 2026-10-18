@@ -72,6 +72,12 @@ Tính bằng ứng dụng trên `data/real/processed/` (200 dòng khớp, ngư�
 - Vì vậy M31 **giữ baseline**, **không** bật mô hình hiệu chỉnh và **không** tuyên bố độ chính xác.
   Công thức không được tinh chỉnh lại trên pilot, vì 100 ảnh này là dữ liệu đánh giá duy nhất.
 
+### Cập nhật: Ridge đã huấn luyện (2026-10-18)
+
+Đã train Ridge thật cho từng task trên 100 ảnh, giữ cả ảnh có thời gian sửa = 0, CV 5-fold theo nhóm image_id × 20 lần (seed 42).
+MAE Ridge 2,007 s / 2,885 s so với luôn đoán 0 giây 1,170 s / 1,685 s (detection / segmentation). Ridge thắng ở 0% số lần lặp.
+Mô hình có trong app dưới dạng lựa chọn thử nghiệm; chi tiết ở [09_mo_hinh_ridge.md](09_mo_hinh_ridge.md).
+
 ## 5. Giới hạn
 
 - Pilot nhỏ (100 ảnh, 1 lớp, 13 ca có sửa mỗi task); không đại diện cho BDD100K.

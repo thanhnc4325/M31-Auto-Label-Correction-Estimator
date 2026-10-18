@@ -24,6 +24,9 @@ Tỷ lệ đóng góp do nhóm cung cấp. Nhật ký công việc theo từng t
 > - Mô hình hiệu chỉnh **không được bật** vì mỗi task chỉ có 13 ảnh có thời gian sửa > 0.
 > - Đã thử thêm 29 đặc trưng box/mask (cross-validation lặp 50 lần): **không mô hình nào thắng "luôn đoán 0 giây"**,
 >   nên chưa dùng chúng để dự đoán. Chi tiết: [docs/07_phan_tich_dac_trung.md](docs/07_phan_tich_dac_trung.md).
+> - **Ridge đã huấn luyện (thử nghiệm):** mô hình có giám sát thật, train trên pilot. CV theo nhóm image_id:
+>   MAE Ridge 2,01 s / 2,89 s so với **luôn đoán 0 giây 1,17 s / 1,69 s** (detection / segmentation), nên **không tốt hơn**.
+>   Có thể chọn trong app để xem; chi tiết: [docs/09_mo_hinh_ridge.md](docs/09_mo_hinh_ridge.md).
 > - `data/sample/` là **dữ liệu MINH HỌA sinh ngẫu nhiên**, không phải số đo thật.
 
 ![M31 thumbnail](docs/thumbnail.png)
@@ -132,13 +135,27 @@ Luồng demo trong ứng dụng:
 4. **④ So sánh với thời gian sửa thật**: MAE so với mốc hằng số, tương quan, bảng ưu tiên × ảnh thực sự cần sửa.
 5. **⑤ Giới hạn & kiểm tra rò rỉ**: danh sách cột được dùng làm đầu vào và các cột bị cấm.
 
+## Mô hình Ridge đã huấn luyện
+
+Train lại (đọc `data/real/processed/pilot100_prelabels.csv` + `pilot100_correction_log.csv`, ghi `models/ridge_pilot100.json`):
+
+```powershell
+.\.venv\Scripts\python.exe scripts\train_ridge.py        # k=5 theo nhóm image_id, seed=42, 20 lần lặp
+```
+
+- Đầu vào: `num_predictions`, `low_confidence_count`, `uncertainty = 1 − mean_confidence`. Không dùng thời gian sửa, `edits_*`, `status`, `notes` hay ground truth.
+- Một mô hình cho mỗi task; giữ cả ảnh có thời gian sửa = 0. So sánh với mốc luôn đoán 0 giây và mốc median của tập train.
+- Trong app: thanh bên → **Mô hình thời gian sửa** → **Baseline** hoặc **Ridge đã huấn luyện — thử nghiệm**.
+- Kết quả và giới hạn: [docs/09_mo_hinh_ridge.md](docs/09_mo_hinh_ridge.md).
+- So sánh thêm với hurdle và hồi quy trung vị (LAD), CV lồng nhau theo image_id: không mô hình nào thắng "luôn đoán 0 giây"; mặc định giữ Baseline. Chạy lại: `python scripts/compare_models.py`. Chi tiết: [docs/10_so_sanh_mo_hinh.md](docs/10_so_sanh_mo_hinh.md).
+
 ## Kiểm thử
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover tests
 ```
 
-20 test (schema, chống rò rỉ, hiệu chỉnh, script xử lý dữ liệu và đặc trưng trên ZIP tự tạo). Chi tiết: [docs/03_thiet_ke_va_kiem_thu.md](docs/03_thiet_ke_va_kiem_thu.md).
+27 test (schema, chống rò rỉ, hiệu chỉnh, script xử lý dữ liệu và đặc trưng trên ZIP tự tạo, Ridge đã huấn luyện: fold theo image_id, artifact không chứa log). Chi tiết: [docs/03_thiet_ke_va_kiem_thu.md](docs/03_thiet_ke_va_kiem_thu.md).
 
 ## Cấu trúc
 
@@ -148,6 +165,11 @@ m31/schema.py                 Schema CSV, kiểm tra hợp lệ, chặn cột gr
 m31/baseline.py               Baseline heuristic TẠM THỜI (hằng số giả định)
 m31/estimator.py              Điểm chất lượng, thời gian, ưu tiên, lý do
 m31/calibration.py            Đối chiếu với correction log: MAE, CV, mốc hằng số, bảng ưu tiên  ← chỗ thay mô hình
+m31/ridge_model.py            Ridge đã huấn luyện: CV theo nhóm image_id, fit cuối, lưu/đọc artifact JSON
+models/ridge_pilot100.json    Artifact Ridge (hệ số, features, số mẫu, CV, nguồn) — không chứa correction log
+scripts/train_ridge.py        Train + đánh giá Ridge trên pilot thật
+scripts/compare_models.py     So sánh Ridge với hurdle / LAD (CV lồng nhau theo image_id)
+m31/simple_models.py          Mô hình hurdle và LAD dùng trong so sánh
 scripts/prepare_real_data.py  ZIP pilot → CSV đã xử lý + manifest
 scripts/build_features.py     ZIP pilot → bảng đặc trưng mở rộng + data dictionary
 scripts/analyze_features.py   CV so với các baseline đơn giản, kiểm định hoán vị
@@ -184,3 +206,5 @@ Ground truth và mọi thông tin chỉ có sau khi con người sửa **không 
 - [Slide M31_slides_team.pptx](docs/M31_slides_team.pptx) và [mô tả từng slide](docs/06_noi_dung_slide.md)
 - [Phân tích đặc trưng mở rộng + data dictionary](docs/07_phan_tich_dac_trung.md): 29 đặc trưng box/mask; không mô hình nào thắng "luôn đoán 0 giây", nên chưa tích hợp vào dự đoán
 - [Checklist nộp bài](docs/08_checklist_nop_bai.md)
+- [Mô hình Ridge đã huấn luyện: đánh giá CV, artifact, giới hạn](docs/09_mo_hinh_ridge.md)
+- [So sánh Ridge với hurdle và LAD (CV lồng nhau)](docs/10_so_sanh_mo_hinh.md)

@@ -1,0 +1,132 @@
+{
+  "artifact_version": 1,
+  "model_type": "ridge_linear_regression_per_task",
+  "target": "correction_time_sec (giây), dự đoán bị cắt về ≥ 0",
+  "ridge_alpha": 1.0,
+  "intercept_penalized": false,
+  "feature_scaling": "không chuẩn hoá (giống CalibratedTimeEstimator)",
+  "features": [
+    "num_predictions",
+    "low_confidence_count",
+    "uncertainty"
+  ],
+  "feature_definitions": {
+    "num_predictions": "Số box/mask pre-label của ảnh",
+    "low_confidence_count": "Số dự đoán có confidence < 0.5",
+    "uncertainty": "1 − mean_confidence; ảnh không có dự đoán (mean_confidence trống) được tính là 1.0 (theo m31.calibration._design)"
+  },
+  "excluded_inputs": [
+    "correction_time_sec",
+    "edits_added",
+    "edits_removed",
+    "edits_changed",
+    "status",
+    "notes",
+    "ground truth",
+    "mọi thông tin phát sinh sau khi con người sửa"
+  ],
+  "trained_at": "2026-10-18T20:00:39",
+  "training_data": [
+    {
+      "file": "data/real/processed/pilot100_prelabels.csv",
+      "sha256": "aae4021fdcf197e1d59d0ce5efa73b36de47f16d20ea80a0ebe501e73b91a0bd",
+      "rows": 200
+    },
+    {
+      "file": "data/real/processed/pilot100_correction_log.csv",
+      "sha256": "ee1bce778091fbf2e063254042e5d55a08b4675a35e32ff7719105ce63f1d988",
+      "rows": 200
+    }
+  ],
+  "cv_settings": {
+    "method": "5-fold theo nhóm image_id, phân tầng theo ảnh có sửa; lặp 20 lần",
+    "k": 5,
+    "seed": 42,
+    "repeats": 20,
+    "baselines": [
+      "zero (luôn đoán 0 giây)",
+      "train_median (median correction_time_sec của fold train)"
+    ]
+  },
+  "tasks": {
+    "detection": {
+      "models_in_training_data": [
+        "yolov8n"
+      ],
+      "intercept": -0.099012,
+      "coefficients": {
+        "num_predictions": 0.154009,
+        "low_confidence_count": 0.13313,
+        "uncertainty": 0.309305
+      },
+      "n_samples": 100,
+      "n_corrected": 13,
+      "cv": {
+        "n_samples": 100,
+        "n_corrected": 13,
+        "mae": {
+          "ridge": 2.0067,
+          "train_median": 1.17,
+          "zero": 1.17
+        },
+        "mae_std_across_repeats": {
+          "ridge": 0.0378,
+          "train_median": 0.0,
+          "zero": 0.0
+        },
+        "mae_on_corrected_images": {
+          "ridge": 7.7377,
+          "train_median": 9.0,
+          "zero": 9.0
+        },
+        "mae_on_uncorrected_images": {
+          "ridge": 1.1503,
+          "train_median": 0.0,
+          "zero": 0.0
+        },
+        "pct_repeats_ridge_beats_zero": 0.0,
+        "pct_repeats_ridge_beats_train_median": 0.0
+      }
+    },
+    "segmentation": {
+      "models_in_training_data": [
+        "sam_b"
+      ],
+      "intercept": 0.36954,
+      "coefficients": {
+        "num_predictions": -0.034939,
+        "low_confidence_count": 0.738638,
+        "uncertainty": -0.043734
+      },
+      "n_samples": 100,
+      "n_corrected": 13,
+      "cv": {
+        "n_samples": 100,
+        "n_corrected": 13,
+        "mae": {
+          "ridge": 2.8846,
+          "train_median": 1.685,
+          "zero": 1.685
+        },
+        "mae_std_across_repeats": {
+          "ridge": 0.1096,
+          "train_median": 0.0,
+          "zero": 0.0
+        },
+        "mae_on_corrected_images": {
+          "ridge": 11.07,
+          "train_median": 12.9615,
+          "zero": 12.9615
+        },
+        "mae_on_uncorrected_images": {
+          "ridge": 1.6615,
+          "train_median": 0.0,
+          "zero": 0.0
+        },
+        "pct_repeats_ridge_beats_zero": 0.0,
+        "pct_repeats_ridge_beats_train_median": 0.0
+      }
+    }
+  },
+  "warning": "Mô hình thử nghiệm trên pilot 100 ảnh BDD100K (lớp car), mỗi task chỉ 13 ảnh có thời gian sửa > 0. Xem 'cv' của từng task: không được coi là đã kiểm chứng hay tốt hơn mốc so sánh nếu CV không cho thấy."
+}

@@ -1,0 +1,37 @@
+{
+  "settings": {
+    "k": 5,
+    "inner_k": 4,
+    "seed": 42,
+    "repeats": 20,
+    "fold_grouping": "image_id",
+    "stratified_on": "ảnh có thời gian sửa > 0",
+    "candidates": [
+      "ridge",
+      "hurdle",
+      "lad"
+    ],
+    "criterion_min_pct_repeats_beat_zero": 0.8
+  },
+  "corrected_per_test_fold": {
+    "detection": {
+      "min": 2,
+      "max": 3
+    },
+    "segmentation": {
+      "min": 2,
+      "max": 3
+    }
+  },
+  "nested_selection_counts": {
+    "detection": {
+      "hurdle": 49,
+      "lad": 51
+    },
+    "segmentation": {
+      "hurdle": 49,
+      "lad": 51
+    }
+  },
+  "replace_default": false
+}
