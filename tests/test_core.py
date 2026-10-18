@@ -393,5 +393,182 @@ class TestSimpleModels(unittest.TestCase):
         self.assertGreater(((pred > 0) == (y > 0)).mean(), 0.9)
 
 
+class TestModelVersionMetrics(unittest.TestCase):
+    """Hàm thuần của scripts/compare_model_versions.py (không cần torch/ultralytics)."""
+
+    @classmethod
+    def setUpClass(cls):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+        import compare_model_versions as cmv
+        cls.cmv = cmv
+
+    def test_greedy_match_one_to_one(self):
+        pred = np.array([[0, 0, 10, 10], [0, 0, 10, 10], [50, 50, 60, 60]], float)
+        ref = np.array([[0, 0, 10, 10]], float)
+        n, ious = self.cmv.greedy_match(pred, np.array([0.9, 0.8, 0.7]), ref)
+        self.assertEqual(n, 1)                      # một box tham chiếu chỉ ghép được một lần
+        self.assertAlmostEqual(ious[0], 1.0)
+        self.assertEqual(self.cmv.greedy_match(pred, np.ones(3), np.zeros((0, 4)))[0], 0)
+
+    def test_mask_scores_ignore_and_region(self):
+        gt = np.zeros((4, 4), np.uint8)
+        gt[0, :2] = 13                              # 2 pixel car
+        gt[3, :] = 255                              # hàng bỏ qua
+        pred = np.zeros((4, 4), bool)
+        pred[0, 0] = True                           # đúng 1
+        pred[3, :] = True                           # rơi vào vùng 255 -> không tính
+        s = self.cmv.mask_scores(pred, gt)
+        self.assertEqual((s["inter"], s["union"]), (1, 2))
+        self.assertAlmostEqual(s["dice"], 2 / 3)
+        region = np.zeros((4, 4), bool)
+        region[0, 0] = True
+        self.assertAlmostEqual(self.cmv.mask_scores(pred, gt, region)["iou"], 1.0)
+
+    def test_extract_det_labels_only_car_for_requested_ids(self):
+        import json
+        import tempfile
+        import zipfile
+        from pathlib import Path
+        data = [{"name": "a.jpg", "labels": [{"category": "car", "box2d": {"x1": 1, "y1": 2, "x2": 3, "y2": 4}},
+                                             {"category": "truck", "box2d": {"x1": 0, "y1": 0, "x2": 9, "y2": 9}}]},
+                {"name": "b.jpg", "labels": [{"category": "car", "box2d": {"x1": 5, "y1": 5, "x2": 6, "y2": 6}}]}]
+        with tempfile.TemporaryDirectory() as d:
+            zp = Path(d) / "a.zip"
+            with zipfile.ZipFile(zp, "w") as z:
+                z.writestr(self.cmv.DET_LABELS_IN_ARCHIVE, json.dumps(data))
+            with zipfile.ZipFile(zp) as z:
+                out = self.cmv.extract_det_labels(z, ["a", "zzz"])
+        self.assertEqual(out, {"a": [[1, 2, 3, 4]]})
+
+
+class TestModelZooStats(unittest.TestCase):
+    """Hàm thống kê của scripts/compare_model_zoo.py."""
+
+    def test_ratio_and_bootstrap(self):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+        import compare_model_zoo as z
+        num, den = np.array([1.0, 2.0, 3.0]), np.array([2.0, 4.0, 6.0])
+        self.assertAlmostEqual(z.ratio(num, den)(np.arange(3)), 0.5)
+        self.assertTrue(np.isnan(z.ratio(num, np.zeros(3))(np.arange(3))))
+        lo, hi = z.boot(z.ratio(num, den), 3, np.random.default_rng(0))
+        self.assertAlmostEqual(lo, 0.5)              # mọi ảnh cùng tỉ lệ -> CI suy biến tại 0.5
+        self.assertAlmostEqual(hi, 0.5)
+
+
+class TestSamEvalAudit(unittest.TestCase):
+    """scripts/audit_sam_eval.py: tách tập 'có prompt' và tập 'IoU xác định', tái tạo đúng số cũ."""
+
+    def test_sets_and_recompute(self):
+        import json
+        import subprocess
+        import sys
+        import tempfile
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent
+        rows = []
+        # img1, img2: có prompt; img3: không prompt nhưng có car; img4: không prompt, không car
+        spec = {"sam_b": [(100, 80, 0.8), (50, 50, 0.6)], "sam2_b": [(100, 90, 0.9), (50, 40, 0.5)]}
+        for m, vals in spec.items():
+            for k, (G, P, d) in enumerate(vals, 1):
+                rows.append({"model": m, "task": "segmentation", "image_id": f"img{k}", "status": "ok", "n_prompts": 1,
+                             "gt_car_px": G, "pred_px": P, "dice": d, "iou": d / (2 - d), "iou_in_prompt_boxes": 0.9})
+            rows.append({"model": m, "task": "segmentation", "image_id": "img3", "status": "no_prompt", "n_prompts": 0,
+                         "gt_car_px": 30, "pred_px": 0, "dice": 0.0, "iou": 0.0, "iou_in_prompt_boxes": None})
+            rows.append({"model": m, "task": "segmentation", "image_id": "img4", "status": "no_prompt", "n_prompts": 0,
+                         "gt_car_px": 0, "pred_px": 0, "dice": None, "iou": None, "iou_in_prompt_boxes": None})
+        df = pd.DataFrame(rows)
+        P, G, d = df.pred_px.astype(float), df.gt_car_px.astype(float), df.dice.fillna(0.0)
+        df["I"], df["U"] = d * (P + G) / 2, P + G - d * (P + G) / 2
+        summ = [{"model": m, "mean_sec": 0.1, "pooled_iou": float(g.I.sum() / g.U.sum()),
+                 "mean_iou_per_image": float(g.iou.mean())} for m, g in df.groupby("model", sort=False)]
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            df.drop(columns=["I", "U"]).to_csv(run / "per_image_results.csv", index=False)
+            (run / "segmentation_summary.json").write_text(json.dumps(summ), encoding="utf-8")
+            r = subprocess.run([sys.executable, str(root / "scripts" / "audit_sam_eval.py"), "--run", str(run)],
+                               capture_output=True, text=True, encoding="utf-8")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            audit = json.loads((run / "sam_eval_audit.json").read_text(encoding="utf-8"))
+            rec = pd.read_csv(run / "sam_eval_recomputed.csv")
+        self.assertEqual(audit["set_A_92_prompted"], 2)
+        self.assertEqual(audit["set_B_98_iou_defined"], 3)
+        self.assertEqual(audit["set_B_minus_A"], ["img3"])
+        self.assertEqual(audit["not_scored"], ["img4"])
+        self.assertLess(audit["max_abs_diff_pooled_iou"], 1e-9)
+        a = rec[(rec.eval_set == "A_92_prompted")].set_index("model")
+        self.assertEqual(int(a.loc["sam_b", "n_images"]), 2)
+
+
+class TestModelBenchmarkLoader(unittest.TestCase):
+    """m31/model_benchmark.py: đọc đúng file, dùng tập 92 ảnh cho SAM, báo thiếu dữ liệu thay vì lỗi."""
+
+    def _write_run(self, run, with_recomputed=True, with_det=True):
+        import json
+        run.mkdir(parents=True)
+        (run / "run_config.json").write_text(json.dumps({"n_images": 100, "hardware": {"gpu": "GPU-X"}}), encoding="utf-8")
+        if with_det:
+            (run / "detection_summary.json").write_text(json.dumps([
+                {"model": "yolov8n", "n_images_ok": 100, "mean_sec": 0.014, "total_car_boxes": 557, "gt_images": 14,
+                 "gt_boxes": 126, "tp": 77, "fp": 13, "fn": 49, "precision": 0.856, "precision_ci95": [0.79, 0.93],
+                 "recall": 0.611, "recall_ci95": [0.54, 0.71]},
+                {"model": "yolo11m", "reference": "yolov8n", "n_images_ok": 100, "mean_sec": 0.022, "total_car_boxes": 676,
+                 "gt_images": 14, "gt_boxes": 126, "tp": 88, "fp": 8, "fn": 38, "precision": 0.917,
+                 "precision_ci95": [0.87, 0.96], "recall": 0.698, "recall_ci95": [0.62, 0.79],
+                 "precision_diff_vs_ref_ci95": [-0.004, 0.137], "recall_diff_vs_ref_ci95": [0.033, 0.137]}]), encoding="utf-8")
+        (run / "segmentation_summary.json").write_text(json.dumps([
+            {"model": "sam_b", "n_images_ok": 92, "n_images_with_prompt": 92, "mean_sec": 0.30, "total_sec": 27.6,
+             "pooled_iou_in_prompt_boxes": 0.894},
+            {"model": "sam2_t", "reference": "sam_b", "n_images_ok": 92, "n_images_with_prompt": 92, "mean_sec": 0.12,
+             "total_sec": 11.0, "pooled_iou_in_prompt_boxes": 0.911}]), encoding="utf-8")
+        if with_recomputed:
+            rows = []
+            for es, n, b, t in [("A_92_prompted", 92, 0.775, 0.790), ("B_98_iou_defined", 98, 0.771, 0.786)]:
+                rows.append({"eval_set": es, "n_images": n, "model": "sam_b", "reference": "sam_b", "mean_sec": 0.3,
+                             "pooled_iou": b, "mean_iou_per_image": 0.76})
+                rows.append({"eval_set": es, "n_images": n, "model": "sam2_t", "reference": "sam_b", "mean_sec": 0.12,
+                             "pooled_iou": t, "mean_iou_per_image": 0.77, "pooled_iou_diff_vs_ref": t - b,
+                             "n_images_better": 46, "n_images_worse": 41, "n_images_tie": 5})
+            pd.DataFrame(rows).to_csv(run / "sam_eval_recomputed.csv", index=False)
+
+    def test_loads_main_sam_set_and_detection(self):
+        import tempfile
+        from pathlib import Path
+        from m31.model_benchmark import load_benchmark
+        with tempfile.TemporaryDirectory() as d:
+            self._write_run(Path(d) / "r1")
+            b = load_benchmark(Path(d))
+        self.assertEqual(b.problems, [])
+        self.assertEqual(set(b.detection.model), {"yolov8n", "yolo11m"})
+        self.assertTrue(b.detection.set_index("model").loc["yolov8n", "is_reference"])
+        self.assertEqual(set(b.segmentation.n_images), {92})                 # chỉ tập 92, không lấy 98
+        s = b.segmentation.set_index("model")
+        self.assertAlmostEqual(s.loc["sam2_t", "pooled_iou"], 0.790)
+        self.assertAlmostEqual(s.loc["sam2_t", "speedup_vs_ref"], 0.30 / 0.12)
+
+    def test_missing_files_reported_not_faked(self):
+        import tempfile
+        from pathlib import Path
+        from m31.model_benchmark import load_benchmark
+        with tempfile.TemporaryDirectory() as d:
+            self._write_run(Path(d) / "r1", with_recomputed=False, with_det=False)
+            b = load_benchmark(Path(d))
+            none = load_benchmark(Path(d) / "khong_ton_tai")
+        self.assertTrue(b.detection.empty and b.segmentation.empty)       # không thay bằng tập 98
+        self.assertEqual(len(b.problems), 2)
+        self.assertFalse(none.available)
+        self.assertEqual(len(none.problems), 1)
+
+    def test_display_names(self):
+        from m31.model_benchmark import display_name, yolo_sort_key
+        self.assertEqual([display_name(m) for m in ["yolov8n", "yolo11m", "sam2.1_t", "sam_b", "mobile_sam"]],
+                         ["YOLOv8n", "YOLO11m", "SAM2.1-T", "SAM-B", "MobileSAM"])
+        self.assertEqual(sorted(["yolo11m", "yolov8x", "yolov8n", "yolo11n"], key=yolo_sort_key),
+                         ["yolov8n", "yolov8x", "yolo11n", "yolo11m"])
+
+
 if __name__ == "__main__":
     unittest.main()

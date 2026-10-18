@@ -134,6 +134,7 @@ Luồng demo trong ứng dụng:
 3. **③ Chi tiết ảnh & pre-label**: overlay YOLO/SAM (đọc trực tiếp từ ZIP local), đặc trưng đầu vào, ước lượng và log sửa thật.
 4. **④ So sánh với thời gian sửa thật**: MAE so với mốc hằng số, tương quan, bảng ưu tiên × ảnh thực sự cần sửa.
 5. **⑤ Giới hạn & kiểm tra rò rỉ**: danh sách cột được dùng làm đầu vào và các cột bị cấm.
+6. **⑥ So sánh model YOLO/SAM**: kết quả benchmark đã chạy (đọc từ `data/real/model_comparison/runs/`). Detection và segmentation tách riêng; P/R trên 14 ảnh / 126 box có nhãn; SAM dùng chung box prompt YOLOv8n, IoU chính trên 92 ảnh. Kết quả chỉ mang tính khám phá; mặc định vẫn là YOLOv8n + SAM-B. Thiếu file kết quả thì app báo rõ, không hiển thị số.
 
 ## Mô hình Ridge đã huấn luyện
 
@@ -148,6 +149,12 @@ Train lại (đọc `data/real/processed/pilot100_prelabels.csv` + `pilot100_cor
 - Trong app: thanh bên → **Mô hình thời gian sửa** → **Baseline** hoặc **Ridge đã huấn luyện — thử nghiệm**.
 - Kết quả và giới hạn: [docs/09_mo_hinh_ridge.md](docs/09_mo_hinh_ridge.md).
 - So sánh thêm với hurdle và hồi quy trung vị (LAD), CV lồng nhau theo image_id: không mô hình nào thắng "luôn đoán 0 giây"; mặc định giữ Baseline. Chạy lại: `python scripts/compare_models.py`. Chi tiết: [docs/10_so_sanh_mo_hinh.md](docs/10_so_sanh_mo_hinh.md).
+
+## So sánh phiên bản YOLO / SAM (pilot, tuỳ chọn)
+
+Cần môi trường riêng `.venv_models` (torch + ultralytics) và dữ liệu local (BDD100K `archive.zip`, weights); không cần cho app.
+Hướng dẫn, cấu hình, kết quả và giới hạn: [docs/11_so_sanh_phien_ban_model.md](docs/11_so_sanh_phien_ban_model.md) (2 cặp model) và [docs/12_so_sanh_nhieu_model.md](docs/12_so_sanh_nhieu_model.md) (9 YOLO + 7 SAM, `scripts/compare_model_zoo.py`).
+Kết quả CSV/JSON: `data/real/model_comparison/` (không chứa ảnh hay weights).
 
 ## Kiểm thử
 
@@ -208,3 +215,6 @@ Ground truth và mọi thông tin chỉ có sau khi con người sửa **không 
 - [Checklist nộp bài](docs/08_checklist_nop_bai.md)
 - [Mô hình Ridge đã huấn luyện: đánh giá CV, artifact, giới hạn](docs/09_mo_hinh_ridge.md)
 - [So sánh Ridge với hurdle và LAD (CV lồng nhau)](docs/10_so_sanh_mo_hinh.md)
+- [So sánh phiên bản YOLO (v8n vs 11n) và SAM (SAM-B vs SAM2-B) trên 100 ảnh pilot](docs/11_so_sanh_phien_ban_model.md): khác biệt tốc độ đo được trên RTX 2060; khác biệt chất lượng chưa có ý nghĩa thống kê
+- [So sánh 9 YOLO và 7 SAM trên 100 ảnh pilot](docs/12_so_sanh_nhieu_model.md): giữ mặc định YOLOv8n + SAM-B; SAM2-T là ứng viên cần kiểm chứng thêm
+- [So sánh bổ sung 13 YOLO và 4 SAM](docs/13_so_sanh_model_bo_sung.md): kết quả chất lượng mang tính khám phá (14 ảnh có nhãn detection, nhiều phép so sánh); giữ mặc định

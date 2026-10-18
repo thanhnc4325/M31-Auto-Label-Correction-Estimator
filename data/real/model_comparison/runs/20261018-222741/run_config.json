@@ -1,0 +1,32 @@
+{
+  "run_id": "20261018-222741",
+  "n_images": 100,
+  "n_images_with_det_labels": 14,
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 2060",
+    "cpu": "Intel64 Family 6 Model 158 Stepping 10, GenuineIntel",
+    "os": "Windows-11-10.0.26300-SP0"
+  },
+  "software": {
+    "python": "3.14.2",
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6",
+    "ultralytics": "8.4.182",
+    "opencv": "5.0.0"
+  },
+  "settings": {
+    "device": "0",
+    "imgsz_yolo": 640,
+    "conf_yolo": 0.25,
+    "warmup_images": 3,
+    "yolo_reference": "yolov8n",
+    "sam_reference": "sam_b",
+    "sam_prompts": "555 box YOLOv8n đã bàn giao, giống nhau cho mọi SAM (SAM có prompt)",
+    "timing": "wall-clock một lời gọi model trên ảnh đã giải mã, có cuda synchronize; không tính nạp model, ảnh khởi động, giải mã ảnh, tính chỉ số; model chạy lần lượt theo run_order",
+    "bootstrap": {
+      "n": 2000,
+      "seed": 42,
+      "unit": "ảnh"
+    }
+  }
+}

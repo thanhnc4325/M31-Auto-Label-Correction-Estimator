@@ -1,0 +1,558 @@
+[
+  {
+    "model": "yolov8n",
+    "n_images_ok": 100,
+    "total_car_boxes": 557,
+    "mean_sec": 0.01379308299983677,
+    "total_sec": 1.379308299983677,
+    "load_sec": 0.04477770000085002,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 77,
+    "fp": 13,
+    "fn": 49,
+    "precision": 0.8555555555555555,
+    "precision_ci95": [
+      0.7866629213483146,
+      0.925
+    ],
+    "recall": 0.6111111111111112,
+    "recall_ci95": [
+      0.5374124276576303,
+      0.7105263157894737
+    ]
+  },
+  {
+    "model": "yolov8l",
+    "n_images_ok": 100,
+    "total_car_boxes": 724,
+    "mean_sec": 0.023316571000250405,
+    "total_sec": 2.3316571000250406,
+    "load_sec": 0.11511050000262912,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 84,
+    "fp": 12,
+    "fn": 42,
+    "precision": 0.875,
+    "precision_ci95": [
+      0.8282828282828283,
+      0.9255417651694247
+    ],
+    "recall": 0.6666666666666666,
+    "recall_ci95": [
+      0.5714034205231387,
+      0.7641648168701443
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 480,
+    "only_ref": 77,
+    "only_model": 244,
+    "time_diff_vs_ref_ms": 9.523488000413636,
+    "time_diff_ci95_ms": [
+      9.110076675191522,
+      9.943574350249037
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.05887340014412506,
+      0.09820232265036496
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.008855591311343539,
+      0.11805555555555558
+    ]
+  },
+  {
+    "model": "yolo11l",
+    "n_images_ok": 100,
+    "total_car_boxes": 736,
+    "mean_sec": 0.0301277819997631,
+    "total_sec": 3.01277819997631,
+    "load_sec": 0.1844007999970927,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 88,
+    "fp": 15,
+    "fn": 38,
+    "precision": 0.8543689320388349,
+    "precision_ci95": [
+      0.7920792079207921,
+      0.9108910891089109
+    ],
+    "recall": 0.6984126984126984,
+    "recall_ci95": [
+      0.6326530612244898,
+      0.7719298245614035
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 489,
+    "only_ref": 68,
+    "only_model": 247,
+    "time_diff_vs_ref_ms": 16.33469899992633,
+    "time_diff_ci95_ms": [
+      15.67028174957704,
+      17.034796200165147
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.07994415378342506,
+      0.07586738573371563
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.024390243902439046,
+      0.1428816046966731
+    ]
+  },
+  {
+    "model": "yolo26s",
+    "n_images_ok": 100,
+    "total_car_boxes": 714,
+    "mean_sec": 0.020480029000391368,
+    "total_sec": 2.048002900039137,
+    "load_sec": 0.08639799999946263,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 84,
+    "fp": 16,
+    "fn": 42,
+    "precision": 0.84,
+    "precision_ci95": [
+      0.7822394280292762,
+      0.9146341463414634
+    ],
+    "recall": 0.6666666666666666,
+    "recall_ci95": [
+      0.5596853331766365,
+      0.7777777777777778
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 486,
+    "only_ref": 71,
+    "only_model": 228,
+    "time_diff_vs_ref_ms": 6.686946000554599,
+    "time_diff_ci95_ms": [
+      6.103091575887447,
+      7.280250400292061
+    ],
+    "n_images_faster_than_ref": 1,
+    "precision_diff_vs_ref_ci95": [
+      -0.09745287874185822,
+      0.08246386081962244
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.007245073506412292,
+      0.10370545073375254
+    ]
+  },
+  {
+    "model": "yolo26m",
+    "n_images_ok": 100,
+    "total_car_boxes": 749,
+    "mean_sec": 0.021925104999681935,
+    "total_sec": 2.1925104999681935,
+    "load_sec": 0.1729715000037686,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 86,
+    "fp": 8,
+    "fn": 40,
+    "precision": 0.9148936170212766,
+    "precision_ci95": [
+      0.8640666372462489,
+      0.9647058823529412
+    ],
+    "recall": 0.6825396825396826,
+    "recall_ci95": [
+      0.6133301886792453,
+      0.7636492281303602
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 482,
+    "only_ref": 75,
+    "only_model": 267,
+    "time_diff_vs_ref_ms": 8.132021999845165,
+    "time_diff_ci95_ms": [
+      7.273637874832276,
+      9.259605449487935
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.005437144690995719,
+      0.13089867937969196
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.016256884343036956,
+      0.11413431677018637
+    ]
+  },
+  {
+    "model": "yolo12s",
+    "n_images_ok": 100,
+    "total_car_boxes": 623,
+    "mean_sec": 0.024052175999750035,
+    "total_sec": 2.4052175999750034,
+    "load_sec": 0.09064570000191452,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 76,
+    "fp": 11,
+    "fn": 50,
+    "precision": 0.8735632183908046,
+    "precision_ci95": [
+      0.8023223869154101,
+      0.9466702127659574
+    ],
+    "recall": 0.6031746031746031,
+    "recall_ci95": [
+      0.4846479230979641,
+      0.7291666666666666
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 480,
+    "only_ref": 77,
+    "only_model": 143,
+    "time_diff_vs_ref_ms": 10.259092999913264,
+    "time_diff_ci95_ms": [
+      9.668482374210724,
+      10.824876724969725
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.045126568271314685,
+      0.08721387187652045
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.06790273282991732,
+      0.041324759156926946
+    ]
+  },
+  {
+    "model": "yolo12m",
+    "n_images_ok": 100,
+    "total_car_boxes": 639,
+    "mean_sec": 0.025637953999757882,
+    "total_sec": 2.5637953999757883,
+    "load_sec": 0.09800580000592163,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 83,
+    "fp": 7,
+    "fn": 43,
+    "precision": 0.9222222222222223,
+    "precision_ci95": [
+      0.8469364772936202,
+      0.9870171495171495
+    ],
+    "recall": 0.6587301587301587,
+    "recall_ci95": [
+      0.5657894736842105,
+      0.7685185185185185
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 475,
+    "only_ref": 82,
+    "only_model": 164,
+    "time_diff_vs_ref_ms": 11.844870999921113,
+    "time_diff_ci95_ms": [
+      11.148269874782272,
+      12.56420630001594
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.03084914368904586,
+      0.1578387762062863
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.0,
+      0.08929237739872066
+    ]
+  },
+  {
+    "model": "yolov10s",
+    "n_images_ok": 100,
+    "total_car_boxes": 634,
+    "mean_sec": 0.017028340000179013,
+    "total_sec": 1.7028340000179014,
+    "load_sec": 0.08061090000410331,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 80,
+    "fp": 8,
+    "fn": 46,
+    "precision": 0.9090909090909091,
+    "precision_ci95": [
+      0.8620597945707996,
+      0.961038961038961
+    ],
+    "recall": 0.6349206349206349,
+    "recall_ci95": [
+      0.5570469798657718,
+      0.7263157894736842
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 486,
+    "only_ref": 71,
+    "only_model": 148,
+    "time_diff_vs_ref_ms": 3.2352570003422443,
+    "time_diff_ci95_ms": [
+      2.77341665084532,
+      3.713337950097411
+    ],
+    "n_images_faster_than_ref": 6,
+    "precision_diff_vs_ref_ci95": [
+      0.0047187323546019734,
+      0.10761165300638979
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.0,
+      0.045454545454545414
+    ]
+  },
+  {
+    "model": "yolov10m",
+    "n_images_ok": 100,
+    "total_car_boxes": 672,
+    "mean_sec": 0.020985870000658907,
+    "total_sec": 2.0985870000658906,
+    "load_sec": 0.09890730000188341,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 87,
+    "fp": 5,
+    "fn": 39,
+    "precision": 0.9456521739130435,
+    "precision_ci95": [
+      0.8953488372093024,
+      0.9886363636363636
+    ],
+    "recall": 0.6904761904761905,
+    "recall_ci95": [
+      0.6142857142857143,
+      0.7826189499589827
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 483,
+    "only_ref": 74,
+    "only_model": 189,
+    "time_diff_vs_ref_ms": 7.192787000822136,
+    "time_diff_ci95_ms": [
+      6.310264251444096,
+      8.375771650868046
+    ],
+    "n_images_faster_than_ref": 1,
+    "precision_diff_vs_ref_ci95": [
+      0.0379248374076323,
+      0.14926598168592953
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.04761904761904767,
+      0.11000229357798162
+    ]
+  },
+  {
+    "model": "yolov8x",
+    "n_images_ok": 100,
+    "total_car_boxes": 765,
+    "mean_sec": 0.032043767000650404,
+    "total_sec": 3.2043767000650405,
+    "load_sec": 0.1418880999990506,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 88,
+    "fp": 15,
+    "fn": 38,
+    "precision": 0.8543689320388349,
+    "precision_ci95": [
+      0.8125,
+      0.898876404494382
+    ],
+    "recall": 0.6984126984126984,
+    "recall_ci95": [
+      0.6194017814155032,
+      0.7870419621749409
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 484,
+    "only_ref": 73,
+    "only_model": 281,
+    "time_diff_vs_ref_ms": 18.250684000813635,
+    "time_diff_ci95_ms": [
+      17.89451237600588,
+      18.573619451322884
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.07730925110215295,
+      0.08494047619047619
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.03061029755413619,
+      0.1393490278307282
+    ]
+  },
+  {
+    "model": "yolo11x",
+    "n_images_ok": 100,
+    "total_car_boxes": 730,
+    "mean_sec": 0.03138467400000081,
+    "total_sec": 3.1384674000000814,
+    "load_sec": 0.16227570000046398,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 89,
+    "fp": 8,
+    "fn": 37,
+    "precision": 0.9175257731958762,
+    "precision_ci95": [
+      0.8791208791208791,
+      0.9574468085106383
+    ],
+    "recall": 0.7063492063492064,
+    "recall_ci95": [
+      0.6230555555555556,
+      0.7982491511035654
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 481,
+    "only_ref": 76,
+    "only_model": 249,
+    "time_diff_vs_ref_ms": 17.591591000164044,
+    "time_diff_ci95_ms": [
+      16.84733775026507,
+      18.605337975190196
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.006409420289855139,
+      0.13996951537258986
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.040000000000000036,
+      0.1499999999999999
+    ]
+  },
+  {
+    "model": "yolov9t",
+    "n_images_ok": 100,
+    "total_car_boxes": 632,
+    "mean_sec": 0.033014270999774456,
+    "total_sec": 3.3014270999774453,
+    "load_sec": 0.143850399996154,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 79,
+    "fp": 11,
+    "fn": 47,
+    "precision": 0.8777777777777778,
+    "precision_ci95": [
+      0.8152173913043478,
+      0.9506223436551305
+    ],
+    "recall": 0.626984126984127,
+    "recall_ci95": [
+      0.5384482758620689,
+      0.7310924369747899
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 487,
+    "only_ref": 70,
+    "only_model": 145,
+    "time_diff_vs_ref_ms": 19.221187999937683,
+    "time_diff_ci95_ms": [
+      18.231068149825663,
+      20.262788700470995
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.030883634321359186,
+      0.08565462284724575
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.02500525210084036,
+      0.06299212598425197
+    ]
+  },
+  {
+    "model": "yolov9s",
+    "n_images_ok": 100,
+    "total_car_boxes": 656,
+    "mean_sec": 0.03232319999988249,
+    "total_sec": 3.232319999988249,
+    "load_sec": 0.13852430000406457,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 84,
+    "fp": 11,
+    "fn": 42,
+    "precision": 0.8842105263157894,
+    "precision_ci95": [
+      0.8490511189118034,
+      0.9277323580034422
+    ],
+    "recall": 0.6666666666666666,
+    "recall_ci95": [
+      0.5905464377193814,
+      0.75
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 488,
+    "only_ref": 69,
+    "only_model": 168,
+    "time_diff_vs_ref_ms": 18.53011700004572,
+    "time_diff_ci95_ms": [
+      17.84494182480375,
+      19.278609601093194
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.022910534912018547,
+      0.08193745216622625
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.00917431192660545,
+      0.09272293238872631
+    ]
+  },
+  {
+    "model": "yolov9c",
+    "n_images_ok": 100,
+    "total_car_boxes": 708,
+    "mean_sec": 0.02578109999987646,
+    "total_sec": 2.578109999987646,
+    "load_sec": 0.12776569999550702,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 83,
+    "fp": 9,
+    "fn": 43,
+    "precision": 0.9021739130434783,
+    "precision_ci95": [
+      0.830183962264151,
+      0.9746835443037974
+    ],
+    "recall": 0.6587301587301587,
+    "recall_ci95": [
+      0.5833333333333334,
+      0.75
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 476,
+    "only_ref": 81,
+    "only_model": 232,
+    "time_diff_vs_ref_ms": 11.98801700003969,
+    "time_diff_ci95_ms": [
+      11.316512224871985,
+      12.654105725194311
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.0404574374485504,
+      0.14613472863515628
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.008474576271186418,
+      0.0841220218507305
+    ]
+  }
+]

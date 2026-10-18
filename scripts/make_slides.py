@@ -302,6 +302,9 @@ def build() -> None:
         "Về xếp hạng: AUC khoảng 0,56, kiểm định hoán vị không có ý nghĩa. Hai tín hiệu đơn biến chỉ là giả "
         "thuyết vì đã thử nhiều đặc trưng trên cùng 13 ca.")
 
+    # 6b. So sánh model -----------------------------------------------------------
+    model_comparison_slide(prs, blank)
+
     # 7. Giới hạn ---------------------------------------------------------------
     s = prs.slides.add_slide(blank)
     background(s, WHITE)
@@ -351,6 +354,53 @@ def build() -> None:
     cp.revision = 1
     prs.save(OUT)
     print(f"Đã ghi {OUT}")
+
+
+MODEL_COMPARISON_NOTES = (
+    "So sánh model (pilot 100 ảnh BDD100K, lớp car, RTX 2060): đã thử 22 phiên bản YOLO và 11 phiên bản SAM trên cùng "
+    "tập pilot, với cấu hình thống nhất trong từng nhóm model. Với cùng box prompt YOLOv8n, SAM2-T/S chạy nhanh hơn "
+    "SAM-B khoảng 2,2–2,5 lần; IoU trên 92 ảnh có prompt cao hơn nhẹ (+0,012…+0,016), nhưng kết quả chỉ mang tính "
+    "khám phá. Chất lượng detection chưa xếp hạng được một cách đáng tin cậy vì chỉ 14 ảnh (126 box) có nhãn. Nhóm giữ "
+    "YOLOv8n + SAM-B làm mặc định; các ứng viên cần được kiểm chứng trên tập ảnh mới có nhãn.\n\n"
+    "Chi tiết phương pháp: YOLO dùng imgsz 640, conf 0,25, NMS theo lớp IoU 0,7, lọc lớp car; precision/recall chấm trên "
+    "14 ảnh có nhãn box (126 box), 86 ảnh còn lại không chấm. SAM được đánh giá với cùng 555 box prompt từ YOLOv8n; "
+    "IoU so với nhãn segmentation BDD100K (car), chỉ số chính trên 92 ảnh có prompt. Khoảng tin cậy bootstrap theo ảnh. "
+    "Có nhiều phép so sánh trên mẫu nhỏ, chưa hiệu chỉnh, nên không có model nào được coi là tốt nhất; kết quả không "
+    "đại diện cho toàn bộ BDD100K. Báo cáo: docs/11, docs/12, docs/13."
+)
+
+
+def model_comparison_slide(prs, layout):
+    """Slide tóm tắt so sánh model (số liệu từ docs/12–13; kết quả khám phá)."""
+    s = prs.slides.add_slide(layout)
+    background(s, WHITE)
+    title(s, "So sánh model trên pilot: giữ mặc định")
+    text(s, Inches(0.6), Inches(1.3), Inches(12.1), Inches(0.5),
+         "Pilot 100 ảnh BDD100K · lớp car · RTX 2060 · 22 phiên bản YOLO, 11 phiên bản SAM, cấu hình thống nhất trong từng nhóm",
+         size=15, color=SLATE)
+    cards = [
+        ("2,2–2,5×", "SAM2-T/S nhanh hơn SAM-B",
+         "Cùng box prompt YOLOv8n cho mọi SAM"),
+        ("+0,012…+0,016", "IoU cao hơn nhẹ so với SAM-B",
+         "Trên 92 ảnh có prompt · chỉ mang tính khám phá"),
+        ("14 ảnh", "Detection chưa xếp hạng được",
+         "Chỉ 14 ảnh (126 box) có nhãn"),
+    ]
+    for i, (v, l, sub) in enumerate(cards):
+        x = Inches(0.6 + i * 4.1)
+        box(s, x, Inches(2.0), Inches(3.8), Inches(2.55), CARD, name=f"ModelCard{i + 1}")
+        text(s, x + Inches(0.3), Inches(2.3), Inches(3.3), Inches(0.8), v, size=28, font=HEAD, bold=True)
+        text(s, x + Inches(0.3), Inches(3.25), Inches(3.3), Inches(0.5), l, size=16, bold=True)
+        text(s, x + Inches(0.3), Inches(3.75), Inches(3.3), Inches(0.7), sub, size=13, color=SLATE)
+    box(s, Inches(0.6), Inches(4.95), Inches(12.1), Inches(1.35), ASPHALT, name="ModelDecision")
+    text(s, Inches(0.95), Inches(5.1), Inches(11.4), Inches(1.05),
+         [[("Giữ YOLOv8n + SAM-B làm mặc định. ", {"bold": True, "color": LANE}),
+           ("Các ứng viên cần được kiểm chứng trên tập ảnh mới có nhãn.", {"color": WHITE})],
+          [("Không phải kết quả đại diện cho toàn bộ BDD100K; không có model nào được coi là tốt nhất.",
+            {"color": RGBColor(0xD5, 0xDA, 0xE0), "size": 14})]],
+         size=17, anchor=MSO_ANCHOR.MIDDLE)
+    s.notes_slide.notes_text_frame.text = MODEL_COMPARISON_NOTES
+    return s
 
 
 def _arrow_end():

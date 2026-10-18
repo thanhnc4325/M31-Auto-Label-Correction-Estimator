@@ -1,0 +1,171 @@
+[
+  {
+    "model": "sam_b",
+    "n_images_ok": 92,
+    "n_images_with_prompt": 92,
+    "mean_sec": 0.307955040217364,
+    "total_sec": 28.331863699997484,
+    "load_sec": 0.8036906999986968,
+    "n_images_scored": 98,
+    "pooled_iou": 0.770896911040191,
+    "pooled_iou_ci95": [
+      0.6910734307957085,
+      0.8411520379163281
+    ],
+    "pooled_dice": 0.8706287827758205,
+    "mean_iou_per_image": 0.7180736532790849,
+    "pooled_iou_in_prompt_boxes": 0.8938089578807904,
+    "pooled_iou_in_prompt_boxes_ci95": [
+      0.8654135949986166,
+      0.9159602283306594
+    ]
+  },
+  {
+    "model": "sam2.1_t",
+    "n_images_ok": 92,
+    "n_images_with_prompt": 92,
+    "mean_sec": 0.12098161304382539,
+    "total_sec": 11.130308400031936,
+    "load_sec": 0.3602404000048409,
+    "n_images_scored": 98,
+    "pooled_iou": 0.7841333859152038,
+    "pooled_iou_ci95": [
+      0.7034473368088762,
+      0.8551383437499749
+    ],
+    "pooled_dice": 0.8790075810536646,
+    "mean_iou_per_image": 0.7234225141430856,
+    "pooled_iou_in_prompt_boxes": 0.9083732148593393,
+    "pooled_iou_in_prompt_boxes_ci95": [
+      0.8831462989742697,
+      0.929293466855601
+    ],
+    "reference": "sam_b",
+    "pooled_iou_diff_vs_ref": 0.013236474875012783,
+    "pooled_iou_diff_ci95": [
+      0.0070568215021756895,
+      0.021803500035265332
+    ],
+    "iou_in_boxes_diff_ci95": [
+      0.00682741812467631,
+      0.0238881108174333
+    ],
+    "time_diff_vs_ref_ms": -186.97342717353857,
+    "time_diff_ci95_ms": [
+      -187.45966201016847,
+      -186.50464266289103
+    ],
+    "n_images_faster_than_ref": 92
+  },
+  {
+    "model": "sam2.1_s",
+    "n_images_ok": 92,
+    "n_images_with_prompt": 92,
+    "mean_sec": 0.136023188043549,
+    "total_sec": 12.514133300006506,
+    "load_sec": 0.4172978000060539,
+    "n_images_scored": 98,
+    "pooled_iou": 0.7865006975183625,
+    "pooled_iou_ci95": [
+      0.7058308857127954,
+      0.8549233496180042
+    ],
+    "pooled_dice": 0.8804930203619789,
+    "mean_iou_per_image": 0.7241762547529804,
+    "pooled_iou_in_prompt_boxes": 0.9109807557719963,
+    "pooled_iou_in_prompt_boxes_ci95": [
+      0.886180571818256,
+      0.9307312558401508
+    ],
+    "reference": "sam_b",
+    "pooled_iou_diff_vs_ref": 0.01560378647817151,
+    "pooled_iou_diff_ci95": [
+      0.000877425946977692,
+      0.03271958552852553
+    ],
+    "iou_in_boxes_diff_ci95": [
+      0.0002632997296628526,
+      0.035503271911426645
+    ],
+    "time_diff_vs_ref_ms": -171.93185217381497,
+    "time_diff_ci95_ms": [
+      -172.46902926590536,
+      -171.42531649456822
+    ],
+    "n_images_faster_than_ref": 92
+  },
+  {
+    "model": "sam2.1_l",
+    "n_images_ok": 92,
+    "n_images_with_prompt": 92,
+    "mean_sec": 0.4636127706524586,
+    "total_sec": 42.65237490002619,
+    "load_sec": 1.8071531000023242,
+    "n_images_scored": 98,
+    "pooled_iou": 0.7857283589584789,
+    "pooled_iou_ci95": [
+      0.7041882099671988,
+      0.8559267990303812
+    ],
+    "pooled_dice": 0.8800088266691949,
+    "mean_iou_per_image": 0.7215303630668762,
+    "pooled_iou_in_prompt_boxes": 0.9092920719322292,
+    "pooled_iou_in_prompt_boxes_ci95": [
+      0.8823426108740287,
+      0.9288646696320433
+    ],
+    "reference": "sam_b",
+    "pooled_iou_diff_vs_ref": 0.014831447918287943,
+    "pooled_iou_diff_ci95": [
+      -0.0004159650736526853,
+      0.03206617681398205
+    ],
+    "iou_in_boxes_diff_ci95": [
+      -0.0037615747403896478,
+      0.03486877241267737
+    ],
+    "time_diff_vs_ref_ms": 155.65773043509463,
+    "time_diff_ci95_ms": [
+      155.06151551623154,
+      156.22121372361224
+    ],
+    "n_images_faster_than_ref": 0
+  },
+  {
+    "model": "sam2_l",
+    "n_images_ok": 92,
+    "n_images_with_prompt": 92,
+    "mean_sec": 0.46687195217458316,
+    "total_sec": 42.95221960006165,
+    "load_sec": 1.803657700002077,
+    "n_images_scored": 98,
+    "pooled_iou": 0.7865641568577455,
+    "pooled_iou_ci95": [
+      0.7051209223465101,
+      0.8573839392021225
+    ],
+    "pooled_dice": 0.8805327856136714,
+    "mean_iou_per_image": 0.7215562725340485,
+    "pooled_iou_in_prompt_boxes": 0.9105124187739153,
+    "pooled_iou_in_prompt_boxes_ci95": [
+      0.8857046389274523,
+      0.9291179439378812
+    ],
+    "reference": "sam_b",
+    "pooled_iou_diff_vs_ref": 0.01566724581755452,
+    "pooled_iou_diff_ci95": [
+      0.0015198957986840152,
+      0.03344080773282998
+    ],
+    "iou_in_boxes_diff_ci95": [
+      0.00032492583710154184,
+      0.03691991302071211
+    ],
+    "time_diff_vs_ref_ms": 158.9169119572192,
+    "time_diff_ci95_ms": [
+      158.25718019162235,
+      159.59692201127126
+    ],
+    "n_images_faster_than_ref": 0
+  }
+]

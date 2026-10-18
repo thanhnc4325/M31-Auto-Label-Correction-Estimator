@@ -78,6 +78,52 @@ Tính bằng ứng dụng trên `data/real/processed/` (200 dòng khớp, ngư�
 MAE Ridge 2,007 s / 2,885 s so với luôn đoán 0 giây 1,170 s / 1,685 s (detection / segmentation). Ridge thắng ở 0% số lần lặp.
 Mô hình có trong app dưới dạng lựa chọn thử nghiệm; chi tiết ở [09_mo_hinh_ridge.md](09_mo_hinh_ridge.md).
 
+### Cập nhật: So sánh phiên bản model YOLO / SAM (pilot, 2026-10-18)
+
+> **So sánh model (pilot 100 ảnh BDD100K, lớp car, RTX 2060):** đã thử 22 phiên bản YOLO và 11 phiên bản SAM trên cùng tập pilot, với cấu hình thống nhất trong từng nhóm model. Với cùng box prompt YOLOv8n, SAM2-T/S chạy nhanh hơn SAM-B khoảng 2,2–2,5 lần; IoU trên 92 ảnh có prompt cao hơn nhẹ (+0,012…+0,016), nhưng kết quả chỉ mang tính khám phá. Chất lượng detection chưa xếp hạng được một cách đáng tin cậy vì chỉ 14 ảnh (126 box) có nhãn. Nhóm giữ YOLOv8n + SAM-B làm mặc định; các ứng viên cần được kiểm chứng trên tập ảnh mới có nhãn.
+
+**Model đã thử** (cùng 100 ảnh pilot, cùng máy i5-9400 / RTX 2060 12 GB, GPU):
+
+- **22 YOLO:** YOLOv8 n/s/m/l/x, YOLO11 n/s/m/l/x, YOLOv9 t/s/c, YOLOv10 n/s/m, YOLO12 n/s/m, YOLO26 n/s/m.
+- **11 SAM:** SAM-B, SAM-L, MobileSAM, SAM2 t/s/b/l, SAM2.1 t/s/b/l. Không chạy SAM-H và FastSAM.
+- Mọi model chạy đủ: YOLO 100/100 ảnh; SAM 92/92 ảnh có prompt.
+
+**Phương pháp và số mẫu:**
+
+| Hạng mục | Cấu hình / số ảnh dùng |
+|---|---|
+| YOLO | `imgsz` 640, `conf` 0,25, NMS theo lớp IoU 0,7, `max_det` 300, lọc lớp `car` sau NMS; YOLOv10/YOLO26 cũng chạy qua NMS (`end2end=False`) |
+| Precision / recall detection | **14 ảnh, 126 box car** có nhãn trong `bdd100k_labels_images_train.json`; 86 ảnh còn lại không chấm và không bị coi là sai |
+| SAM | **Đánh giá với box prompt từ YOLOv8n**: mọi SAM nhận cùng 555 box YOLOv8n đã bàn giao |
+| IoU / Dice SAM | Nhãn segmentation BDD100K (car = 13, bỏ qua pixel 255); **chỉ số chính trên 92 ảnh có prompt**. 8 ảnh không có prompt (YOLOv8n không bắt được xe) không chạy SAM |
+| Thời gian | Mỗi lời gọi model trên ảnh đã giải mã, có đồng bộ GPU; không tính nạp model và 3 ảnh khởi động |
+| Khoảng tin cậy | Bootstrap 95% theo ảnh, 2000 lần, seed 42; chênh lệch so với tham chiếu tính theo cặp |
+
+**Chi tiết SAM2-T/S so với SAM-B (92 ảnh có prompt):**
+
+| Model | Thời gian/ảnh | Nhanh hơn SAM-B | ΔIoU gộp so với SAM-B [CI 95%] |
+|---|---:|---:|---|
+| SAM-B (tham chiếu) | 0,308–0,310 s | — | — |
+| SAM2-T | 0,122 s | 2,5× | +0,015 [+0,006; +0,029] |
+| SAM2.1-T | 0,121 s | 2,5× | +0,013 [+0,007; +0,022] |
+| SAM2-S | 0,138 s | 2,2× | +0,012 [−0,004; +0,029] |
+| SAM2.1-S | 0,136 s | 2,3× | +0,016 [+0,001; +0,033] |
+
+Dải +0,012…+0,016 trong đoạn tóm tắt bao gồm cả bốn model T/S (thấp nhất là SAM2-S +0,012, cao nhất là SAM2.1-S +0,016).
+SAM 2 / 2.1 cỡ L chậm hơn SAM-B khoảng 1,5 lần và không cho thấy chất lượng cao hơn cỡ T/S.
+
+**Giới hạn của phần so sánh:**
+
+- Pilot 100 ảnh, chỉ lớp car, một máy (RTX 2060). Kết quả **không đại diện cho toàn bộ BDD100K** và có thể khác trên phần cứng khác.
+- Nhiều phép so sánh trên mẫu nhỏ (42 so sánh YOLO trên cùng 14 ảnh; 20 so sánh SAM trên cùng 92 ảnh), chưa hiệu chỉnh.
+  Khoảng tin cậy không chứa 0 chỉ là tín hiệu khám phá; **không có model nào được coi là tốt nhất**.
+- IoU là IoU theo ảnh với nhãn semantic, không theo đối tượng. Chất lượng SAM phụ thuộc prompt YOLOv8n.
+- Thời gian YOLO dao động giữa các lượt chạy (tới 19%), nên không xếp hạng tốc độ YOLO.
+- Correction log hiện có chỉ ứng với đầu ra YOLOv8n / SAM-B. Muốn đổi model mặc định cần thu correction log mới.
+
+Chi tiết đầy đủ: [11_so_sanh_phien_ban_model.md](11_so_sanh_phien_ban_model.md), [12_so_sanh_nhieu_model.md](12_so_sanh_nhieu_model.md),
+[13_so_sanh_model_bo_sung.md](13_so_sanh_model_bo_sung.md).
+
 ## 5. Giới hạn
 
 - Pilot nhỏ (100 ảnh, 1 lớp, 13 ca có sửa mỗi task); không đại diện cho BDD100K.

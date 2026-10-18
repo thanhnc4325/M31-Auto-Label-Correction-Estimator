@@ -21,6 +21,7 @@ from m31.calibration import (
     priority_vs_correction,
 )
 from m31.estimator import DEFAULT_THRESHOLDS, PRIORITY_ORDER, TASK_VI, estimate
+from m31.model_benchmark import SAM_MAIN_SET, display_name, load_benchmark, yolo_sort_key
 from m31.ridge_model import load_trained_ridge
 from m31.schema import (
     CORRECTION_COLUMNS,
@@ -40,6 +41,7 @@ PILOT_LOG = PILOT_DIR / "pilot100_correction_log.csv"
 PILOT_MANIFEST = PILOT_DIR / "pilot100_manifest.json"
 PILOT_ZIP = ROOT / "data" / "real" / "local" / "end_corrected.zip"
 RIDGE_ARTIFACT = ROOT / "models" / "ridge_pilot100.json"
+BENCHMARK_RUNS = ROOT / "data" / "real" / "model_comparison" / "runs"
 OVERLAY_DIR_IN_ZIP = {"detection": "yolo_overlays", "segmentation": "sam_overlays"}
 IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 
@@ -95,6 +97,194 @@ def overlay_from_zip(image_id: str, task: str) -> bytes | None:
         return z.read(name)
     except KeyError:
         return None
+
+
+# ---------------------------------------------------------------- So sánh model YOLO/SAM (benchmark đã chạy)
+@st.cache_data
+def _load_benchmark_cached(path: str, mtime: float):  # mtime: đổi khi file kết quả thay đổi -> làm mới cache
+    return load_benchmark(path, label="data/real/model_comparison/runs")
+
+
+def _fmt_ci(lo, hi, signed=False):
+    if lo is None or hi is None or pd.isna(lo) or pd.isna(hi):
+        return "—"
+    f = (lambda v: f"{v:+.3f}") if signed else (lambda v: f"{v:.3f}")
+    return f"[{f(lo)}; {f(hi)}]"
+
+
+def render_model_benchmark() -> None:
+    st.subheader("So sánh model YOLO/SAM (benchmark pilot)")
+    st.info(
+        "**Pilot 100 ảnh BDD100K, lớp car, chạy trên RTX 2060.** YOLO chỉ so với YOLO (detection), SAM chỉ so với "
+        "SAM (segmentation); **không** so điểm YOLO trực tiếp với SAM. Mọi so sánh chất lượng chỉ mang tính "
+        "**khám phá**: chưa đủ căn cứ kết luận model nào tốt nhất hay đổi model mặc định. "
+        "Mặc định của M31 vẫn là **YOLOv8n + SAM-B**."
+    )
+    mtime = max((p.stat().st_mtime for p in BENCHMARK_RUNS.rglob("*") if p.is_file()), default=0.0) \
+        if BENCHMARK_RUNS.is_dir() else 0.0
+    bench = _load_benchmark_cached(str(BENCHMARK_RUNS), mtime)
+    for msg in bench.problems:
+        st.warning(msg)
+    if not bench.available:
+        st.info(
+            "Chưa có dữ liệu benchmark trên máy này. Kết quả nằm trong `data/real/model_comparison/runs/<run_id>/` "
+            "(tạo bằng `scripts/compare_model_zoo.py` + `scripts/audit_sam_eval.py`). App không hiển thị số liệu "
+            "khi thiếu các file này."
+        )
+    else:
+        cfgs = bench.configs
+        gpus = sorted({c.get("hardware", {}).get("gpu") for c in cfgs.values() if c.get("hardware", {}).get("gpu")})
+        n_imgs = sorted({c.get("n_images") for c in cfgs.values() if c.get("n_images") is not None})
+        st.caption(
+            f"Lượt chạy: {', '.join(sorted(cfgs) or ['—'])} · Số ảnh mỗi lượt: {', '.join(map(str, n_imgs)) or '—'} · "
+            f"GPU: {', '.join(gpus) or '—'}"
+        )
+
+        # ------------------------------------------------ Detection
+        st.markdown("### Detection (YOLO)")
+        det = bench.detection
+        if det.empty:
+            st.warning("Không có dữ liệu detection hợp lệ.")
+        else:
+            gi, gb = sorted(det["gt_images"].dropna().unique()), sorted(det["gt_boxes"].dropna().unique())
+            st.markdown(
+                f"Precision / recall chỉ chấm trên **{', '.join(str(int(x)) for x in gi)} ảnh / "
+                f"{', '.join(str(int(x)) for x in gb)} box car có nhãn**; các ảnh còn lại không có nhãn box nên "
+                "**không được chấm** (không bị coi là sai). CI 95% bootstrap theo ảnh; Δ so với YOLOv8n trong cùng lượt."
+            )
+            d = det.copy()
+            d["_k"] = d["model"].map(yolo_sort_key)
+            d = d.sort_values(["run_id", "_k"])
+            show = pd.DataFrame({
+                "Lượt": d["run_id"],
+                "Model": d["model"].map(display_name) + d["is_reference"].map({True: " (tham chiếu)", False: ""}),
+                "Ảnh chạy": d["n_images_ok"],
+                "ms/ảnh (tham khảo)": d["mean_ms"].round(1),
+                "Box car (100 ảnh)": d["total_car_boxes"],
+                "Ảnh có nhãn": d["gt_images"],
+                "Box nhãn": d["gt_boxes"],
+                "TP / FP / FN": d["tp"].astype(int).astype(str) + " / " + d["fp"].astype(int).astype(str) + " / "
+                                + d["fn"].astype(int).astype(str),
+                "Precision": d["precision"].round(3),
+                "CI precision": [_fmt_ci(a, b) for a, b in zip(d["precision_ci_low"], d["precision_ci_high"])],
+                "Recall": d["recall"].round(3),
+                "CI recall": [_fmt_ci(a, b) for a, b in zip(d["recall_ci_low"], d["recall_ci_high"])],
+                "ΔPrecision vs YOLOv8n": [_fmt_ci(a, b, True) for a, b in zip(d["d_precision_ci_low"], d["d_precision_ci_high"])],
+                "ΔRecall vs YOLOv8n": [_fmt_ci(a, b, True) for a, b in zip(d["d_recall_ci_low"], d["d_recall_ci_high"])],
+            })
+            st.dataframe(show, hide_index=True, width="stretch")
+            st.caption(
+                "Bảng sắp theo họ và cỡ model, **không** xếp hạng theo tốc độ: thời gian YOLO chỉ khác nhau vài ms và "
+                "không ổn định giữa các lượt chạy (lệch tới 19% với cùng model), nên cột ms/ảnh chỉ để tham khảo. "
+                "Số box nhiều hơn không có nghĩa là tốt hơn."
+            )
+            uniq = d.drop(columns="_k").drop_duplicates("model")
+            try:
+                import altair as alt
+                pts = uniq.assign(Model=uniq["model"].map(display_name))
+                chart = alt.Chart(pts).mark_circle(size=90).encode(
+                    x=alt.X("recall:Q", title="Recall (14 ảnh có nhãn)", scale=alt.Scale(zero=False)),
+                    y=alt.Y("precision:Q", title="Precision (14 ảnh có nhãn)", scale=alt.Scale(zero=False)),
+                    tooltip=["Model", alt.Tooltip("precision:Q", format=".3f"), alt.Tooltip("recall:Q", format=".3f"),
+                             "tp", "fp", "fn"],
+                )
+                labels = chart.mark_text(align="left", dx=7, fontSize=11).encode(text="Model")
+                st.altair_chart((chart + labels).properties(height=360), width="stretch")
+            except ImportError:
+                st.scatter_chart(uniq, x="recall", y="precision")
+            st.caption(
+                f"Mỗi điểm là một model (precision/recall trên cùng {', '.join(str(int(x)) for x in gi)} ảnh). "
+                "Khoảng tin cậy rộng và có nhiều phép so sánh trên cùng tập nhỏ: khác biệt giữa các điểm là "
+                "**tín hiệu khám phá**, không phải xếp hạng."
+            )
+
+        # ------------------------------------------------ Segmentation
+        st.markdown("### Segmentation (SAM có prompt)")
+        seg = bench.segmentation
+        if seg.empty:
+            st.warning("Không có dữ liệu segmentation hợp lệ (cần `sam_eval_recomputed.csv` cho chỉ số chính).")
+        else:
+            n_main = sorted(seg["n_images"].dropna().unique())
+            st.markdown(
+                "Mọi SAM dùng **chung box prompt YOLOv8n** (cùng 555 box). IoU chính tính trên "
+                f"**{', '.join(str(int(x)) for x in n_main)} ảnh có prompt** (nhãn segmentation BDD100K, lớp car). "
+                "Δ so với SAM-B trong cùng lượt; CI 95% bootstrap theo ảnh."
+            )
+            sg = seg.sort_values(["run_id", "mean_sec"])
+            show = pd.DataFrame({
+                "Lượt": sg["run_id"],
+                "Model": sg["model"].map(display_name) + sg["is_reference"].map({True: " (tham chiếu)", False: ""}),
+                "Ảnh chạy": sg["n_images_ok"],
+                "Ảnh chấm IoU": sg["n_images"],
+                "s/ảnh": sg["mean_sec"].round(3),
+                "Nhanh hơn SAM-B": sg["speedup_vs_ref"].map(lambda v: f"{v:.2f}×" if pd.notna(v) else "—"),
+                "IoU gộp": sg["pooled_iou"].round(3),
+                "CI IoU gộp": [_fmt_ci(a, b) for a, b in zip(sg["pooled_iou_ci95_low"], sg["pooled_iou_ci95_high"])],
+                "IoU TB/ảnh": sg["mean_iou_per_image"].round(3),
+                "ΔIoU gộp vs SAM-B": [("—" if r else f"{v:+.3f} " + _fmt_ci(a, b, True)) for r, v, a, b in zip(
+                    sg["is_reference"], sg["pooled_iou_diff_vs_ref"], sg["pooled_iou_diff_ci95_low"],
+                    sg["pooled_iou_diff_ci95_high"])],
+                "ΔIoU TB/ảnh vs SAM-B": [("—" if r else f"{v:+.3f} " + _fmt_ci(a, b, True)) for r, v, a, b in zip(
+                    sg["is_reference"], sg["mean_iou_diff_vs_ref"], sg["mean_iou_diff_ci95_low"],
+                    sg["mean_iou_diff_ci95_high"])],
+                "Ảnh tốt hơn / kém hơn / ngang": [("—" if r else f"{int(a)} / {int(b)} / {int(c)}") for r, a, b, c in zip(
+                    sg["is_reference"], sg["n_images_better"].fillna(0), sg["n_images_worse"].fillna(0),
+                    sg["n_images_tie"].fillna(0))],
+            })
+            st.dataframe(show, hide_index=True, width="stretch")
+            st.caption(
+                "Thời gian SAM ổn định giữa các lượt (lệch < 1% với cùng model) nên có thể so sánh tốc độ trên máy này. "
+                "Chênh lệch IoU nhỏ; có nhiều phép so sánh trên cùng 92 ảnh, chưa hiệu chỉnh, nên chỉ là khám phá."
+            )
+            try:
+                import altair as alt
+                u = seg.drop_duplicates("model").assign(Model=lambda x: x["model"].map(display_name))
+                bars = alt.Chart(u).mark_bar().encode(
+                    x=alt.X("mean_sec:Q", title="Thời gian suy luận TB (giây/ảnh, RTX 2060)"),
+                    y=alt.Y("Model:N", sort="x", title=None),
+                    tooltip=["Model", alt.Tooltip("mean_sec:Q", format=".3f")],
+                )
+                ci = alt.Chart(u).mark_rule().encode(
+                    y=alt.Y("Model:N", sort=alt.EncodingSortField(field="pooled_iou", order="descending"), title=None),
+                    x=alt.X("pooled_iou_ci95_low:Q", title=f"IoU gộp ({', '.join(str(int(x)) for x in n_main)} ảnh có prompt), CI 95%",
+                            scale=alt.Scale(zero=False)),
+                    x2="pooled_iou_ci95_high:Q",
+                )
+                pt = alt.Chart(u).mark_point(filled=True, size=70).encode(
+                    y=alt.Y("Model:N", sort=alt.EncodingSortField(field="pooled_iou", order="descending")),
+                    x="pooled_iou:Q",
+                    tooltip=["Model", alt.Tooltip("pooled_iou:Q", format=".3f"),
+                             alt.Tooltip("pooled_iou_ci95_low:Q", format=".3f"),
+                             alt.Tooltip("pooled_iou_ci95_high:Q", format=".3f")],
+                )
+                c1, c2 = st.columns(2)
+                c1.altair_chart(bars.properties(height=300), width="stretch")
+                c2.altair_chart((ci + pt).properties(height=300), width="stretch")
+            except ImportError:
+                st.bar_chart(seg.drop_duplicates("model"), x="model", y="mean_sec")
+            st.caption(
+                "Khoảng tin cậy IoU của các SAM chồng lấn nhau nhiều; không suy ra model nào tốt nhất từ biểu đồ."
+            )
+
+        with st.expander("Cấu hình, mẫu số và giới hạn"):
+            st.markdown(
+                "- **YOLO:** `imgsz` 640, `conf` 0,25, NMS theo lớp IoU 0,7, `max_det` 300, lọc lớp `car` sau NMS. "
+                "YOLOv10 / YOLO26 cũng chạy qua NMS (`end2end=False`).\n"
+                "- **Nhãn detection:** chỉ ảnh có nhãn box car trong `bdd100k_labels_images_train.json` được chấm; "
+                "ghép tham lam theo confidence, IoU ≥ 0,5; không tính mAP vì tập quá nhỏ.\n"
+                "- **SAM:** mọi model nhận cùng box prompt YOLOv8n. 8/100 ảnh không có prompt (YOLOv8n bỏ sót xe) nên "
+                "SAM không chạy. Chỉ số chính trên 92 ảnh có prompt; chỉ số đầu-cuối 98 ảnh có trong "
+                "`sam_eval_recomputed.csv` (tập `B_98_iou_defined`). IoU theo ảnh với nhãn semantic, không theo đối tượng.\n"
+                "- **Thời gian:** một lời gọi model trên ảnh đã giải mã, có đồng bộ GPU; không tính nạp model và ảnh khởi động. "
+                "Model chạy lần lượt trong mỗi lượt.\n"
+                "- **Không đại diện cho toàn bộ BDD100K**; một máy, một lớp, mẫu nhỏ.\n"
+                "- Báo cáo đầy đủ: `docs/11_so_sanh_phien_ban_model.md`, `docs/12_so_sanh_nhieu_model.md`, "
+                "`docs/13_so_sanh_model_bo_sung.md`."
+            )
+            for rid, c in sorted(cfgs.items()):
+                st.markdown(f"**Lượt `{rid}`**")
+                st.json({k: c.get(k) for k in ("n_images", "n_images_with_det_labels", "hardware", "software", "settings")},
+                        expanded=False)
 
 
 # ---------------------------------------------------------------- Sidebar: nguồn dữ liệu
@@ -183,6 +373,8 @@ if kind == "pilot" and not pilot_available:
         "`python scripts/prepare_real_data.py`, sau đó tải lại trang.\n\n"
         "Hoặc chọn **Tải lên file thật** / **Dữ liệu MINH HỌA** ở thanh bên trái."
     )
+    with st.expander("⑥ So sánh model YOLO/SAM (benchmark pilot, không phụ thuộc dữ liệu ở trên)"):
+        render_model_benchmark()
     st.stop()
 
 if pre_raw is None:
@@ -192,6 +384,8 @@ if pre_raw is None:
         f"Cột đặc trưng tùy chọn: `{','.join(OPTIONAL_PRELABEL_COLUMNS)}`\n\n"
         f"correction_log.csv (tùy chọn): `{','.join(CORRECTION_COLUMNS)}` (+ `status`, `notes`)"
     )
+    with st.expander("⑥ So sánh model YOLO/SAM (benchmark pilot, không phụ thuộc dữ liệu ở trên)"):
+        render_model_benchmark()
     st.stop()
 
 pre_res = validate_prelabels(pre_raw)
@@ -276,9 +470,9 @@ st.caption(
 result = estimate(prelabels, time_estimator, thresholds)
 extra_cols = [c for c in OPTIONAL_PRELABEL_COLUMNS if c in result.columns]
 
-tab_list, tab_detail, tab_compare, tab_limits = st.tabs([
+tab_list, tab_detail, tab_compare, tab_limits, tab_models = st.tabs([
     "② Danh sách & ưu tiên review", "③ Chi tiết ảnh & pre-label", "④ So sánh với thời gian sửa thật",
-    "⑤ Giới hạn & kiểm tra rò rỉ",
+    "⑤ Giới hạn & kiểm tra rò rỉ", "⑥ So sánh model YOLO/SAM",
 ])
 
 # ---------------------------------------------------------------- Danh sách
@@ -463,3 +657,6 @@ with tab_limits:
         "mốc 'luôn đoán 0 giây' trong cross-validation, AUC xếp hạng ≈ 0,56 (không khác ngẫu nhiên) — "
         "nên chưa dùng chúng để dự đoán."
     )
+
+with tab_models:
+    render_model_benchmark()

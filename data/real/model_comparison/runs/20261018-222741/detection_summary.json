@@ -1,0 +1,353 @@
+[
+  {
+    "model": "yolov8n",
+    "n_images_ok": 100,
+    "total_car_boxes": 557,
+    "mean_sec": 0.014489637999577098,
+    "total_sec": 1.4489637999577099,
+    "load_sec": 0.04737069999828236,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 77,
+    "fp": 13,
+    "fn": 49,
+    "precision": 0.8555555555555555,
+    "precision_ci95": [
+      0.7866629213483146,
+      0.925
+    ],
+    "recall": 0.6111111111111112,
+    "recall_ci95": [
+      0.5374124276576303,
+      0.7105263157894737
+    ]
+  },
+  {
+    "model": "yolo11n",
+    "n_images_ok": 100,
+    "total_car_boxes": 605,
+    "mean_sec": 0.02054207899986068,
+    "total_sec": 2.054207899986068,
+    "load_sec": 0.05702279999968596,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 80,
+    "fp": 11,
+    "fn": 46,
+    "precision": 0.8791208791208791,
+    "precision_ci95": [
+      0.8125,
+      0.9518072289156626
+    ],
+    "recall": 0.6349206349206349,
+    "recall_ci95": [
+      0.5345851937202938,
+      0.7391304347826086
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 493,
+    "only_ref": 64,
+    "only_model": 112,
+    "time_diff_vs_ref_ms": 6.052441000283579,
+    "time_diff_ci95_ms": [
+      5.268931799979327,
+      6.971122550443396
+    ],
+    "n_images_faster_than_ref": 1,
+    "precision_diff_vs_ref_ci95": [
+      -0.051263261950436456,
+      0.11940285441426142
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.039070189468503935,
+      0.09033724340175946
+    ]
+  },
+  {
+    "model": "yolov10n",
+    "n_images_ok": 100,
+    "total_car_boxes": 527,
+    "mean_sec": 0.01622048800010816,
+    "total_sec": 1.6220488000108162,
+    "load_sec": 0.12584829999832436,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 72,
+    "fp": 11,
+    "fn": 54,
+    "precision": 0.8674698795180723,
+    "precision_ci95": [
+      0.8024691358024691,
+      0.9315146326276462
+    ],
+    "recall": 0.5714285714285714,
+    "recall_ci95": [
+      0.47656118917785234,
+      0.6667355371900823
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 451,
+    "only_ref": 106,
+    "only_model": 76,
+    "time_diff_vs_ref_ms": 1.7308500005310634,
+    "time_diff_ci95_ms": [
+      1.3834311761020217,
+      2.068315825672471
+    ],
+    "n_images_faster_than_ref": 11,
+    "precision_diff_vs_ref_ci95": [
+      -0.04450949768573203,
+      0.07287696513862763
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.0983637605563835,
+      0.009606227106226625
+    ]
+  },
+  {
+    "model": "yolo12n",
+    "n_images_ok": 100,
+    "total_car_boxes": 559,
+    "mean_sec": 0.0280578960001003,
+    "total_sec": 2.80578960001003,
+    "load_sec": 0.08259349999570986,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 77,
+    "fp": 11,
+    "fn": 49,
+    "precision": 0.875,
+    "precision_ci95": [
+      0.8160843920145191,
+      0.9381443298969072
+    ],
+    "recall": 0.6111111111111112,
+    "recall_ci95": [
+      0.5158549783549784,
+      0.7155963302752294
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 464,
+    "only_ref": 93,
+    "only_model": 95,
+    "time_diff_vs_ref_ms": 13.568258000523201,
+    "time_diff_ci95_ms": [
+      12.172184525541525,
+      15.570632900422423
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.050009157509157444,
+      0.10887760537595159
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.053097345132743334,
+      0.046511627906976716
+    ]
+  },
+  {
+    "model": "yolo26n",
+    "n_images_ok": 100,
+    "total_car_boxes": 517,
+    "mean_sec": 0.02096108599951549,
+    "total_sec": 2.096108599951549,
+    "load_sec": 0.08131130000401754,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 73,
+    "fp": 5,
+    "fn": 53,
+    "precision": 0.9358974358974359,
+    "precision_ci95": [
+      0.8846153846153846,
+      0.9859154929577465
+    ],
+    "recall": 0.5793650793650794,
+    "recall_ci95": [
+      0.4538904007916873,
+      0.7265151515151513
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 451,
+    "only_ref": 106,
+    "only_model": 66,
+    "time_diff_vs_ref_ms": 6.471447999938391,
+    "time_diff_ci95_ms": [
+      6.009827124995354,
+      6.927980674296123
+    ],
+    "n_images_faster_than_ref": 1,
+    "precision_diff_vs_ref_ci95": [
+      0.023921495771164387,
+      0.14809619793076756
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.09219858156028365,
+      0.03157894736842104
+    ]
+  },
+  {
+    "model": "yolov8s",
+    "n_images_ok": 100,
+    "total_car_boxes": 673,
+    "mean_sec": 0.016262974999772268,
+    "total_sec": 1.6262974999772268,
+    "load_sec": 0.25822209999751067,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 84,
+    "fp": 16,
+    "fn": 42,
+    "precision": 0.84,
+    "precision_ci95": [
+      0.7684974747474748,
+      0.9208059850928912
+    ],
+    "recall": 0.6666666666666666,
+    "recall_ci95": [
+      0.5909014643075046,
+      0.7589368386243386
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 504,
+    "only_ref": 53,
+    "only_model": 169,
+    "time_diff_vs_ref_ms": 1.7733370001951698,
+    "time_diff_ci95_ms": [
+      1.0945376254530856,
+      2.5885428496621885
+    ],
+    "n_images_faster_than_ref": 33,
+    "precision_diff_vs_ref_ci95": [
+      -0.058065415821501036,
+      0.03384681496461073
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.017237695254936666,
+      0.09092394533571
+    ]
+  },
+  {
+    "model": "yolo11s",
+    "n_images_ok": 100,
+    "total_car_boxes": 673,
+    "mean_sec": 0.01908348199984175,
+    "total_sec": 1.9083481999841752,
+    "load_sec": 0.07328180000331486,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 85,
+    "fp": 15,
+    "fn": 41,
+    "precision": 0.85,
+    "precision_ci95": [
+      0.7870370370370371,
+      0.9204545454545454
+    ],
+    "recall": 0.6746031746031746,
+    "recall_ci95": [
+      0.6093724130794702,
+      0.7537372660506988
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 493,
+    "only_ref": 64,
+    "only_model": 180,
+    "time_diff_vs_ref_ms": 4.593844000264653,
+    "time_diff_ci95_ms": [
+      4.057600275740697,
+      5.153607250476852
+    ],
+    "n_images_faster_than_ref": 1,
+    "precision_diff_vs_ref_ci95": [
+      -0.055228163551606105,
+      0.046711483763446304
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.012048192771084376,
+      0.10072081869388214
+    ]
+  },
+  {
+    "model": "yolov8m",
+    "n_images_ok": 100,
+    "total_car_boxes": 706,
+    "mean_sec": 0.018485864000031143,
+    "total_sec": 1.8485864000031142,
+    "load_sec": 0.10785580000083428,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 82,
+    "fp": 17,
+    "fn": 44,
+    "precision": 0.8282828282828283,
+    "precision_ci95": [
+      0.75,
+      0.9182002457002456
+    ],
+    "recall": 0.6507936507936508,
+    "recall_ci95": [
+      0.5555555555555556,
+      0.7582417582417582
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 489,
+    "only_ref": 68,
+    "only_model": 217,
+    "time_diff_vs_ref_ms": 3.9962260004540444,
+    "time_diff_ci95_ms": [
+      3.1997141001338605,
+      4.7940444504802135
+    ],
+    "n_images_faster_than_ref": 11,
+    "precision_diff_vs_ref_ci95": [
+      -0.09586755290605511,
+      0.06623729531338222
+    ],
+    "recall_diff_vs_ref_ci95": [
+      -0.015879416282642143,
+      0.09910096046459681
+    ]
+  },
+  {
+    "model": "yolo11m",
+    "n_images_ok": 100,
+    "total_car_boxes": 676,
+    "mean_sec": 0.022103030999787734,
+    "total_sec": 2.2103030999787734,
+    "load_sec": 0.10194799999590032,
+    "gt_images": 14,
+    "gt_boxes": 126,
+    "tp": 88,
+    "fp": 8,
+    "fn": 38,
+    "precision": 0.9166666666666666,
+    "precision_ci95": [
+      0.8679100885637274,
+      0.9629629629629629
+    ],
+    "recall": 0.6984126984126984,
+    "recall_ci95": [
+      0.6198347107438017,
+      0.7864197039630749
+    ],
+    "reference": "yolov8n",
+    "boxes_matched_with_ref_iou0.5": 481,
+    "only_ref": 76,
+    "only_model": 195,
+    "time_diff_vs_ref_ms": 7.613393000210635,
+    "time_diff_ci95_ms": [
+      7.168920799977059,
+      8.066208650781846
+    ],
+    "n_images_faster_than_ref": 0,
+    "precision_diff_vs_ref_ci95": [
+      -0.004212852592185006,
+      0.13684679762425112
+    ],
+    "recall_diff_vs_ref_ci95": [
+      0.03305107708982523,
+      0.13669064748201432
+    ]
+  }
+]
